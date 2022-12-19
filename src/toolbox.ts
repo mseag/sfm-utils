@@ -73,7 +73,7 @@ export function parse(file: string, projectName: string) : any {
   const b = new books.Books();
   const bookType = b.getBookByName(bookInfo.bookName);
 
-  // Intialize book object and content for the number of chapters
+  // Initialize book object and content for the number of chapters
   const bookObj : objType = {
     "header": {
       "projectName" : projectName,
@@ -82,7 +82,7 @@ export function parse(file: string, projectName: string) : any {
     "content": []
   };
 
-  // Intialize book object with padding for each chapter (index 0 is extra padding)
+  // Initialize book object with padding for each chapter (index 0 is extra padding)
   for (let i = 0; i < bookType.chapters+1; i++) {
     const padding = {
       "type": "padding",
@@ -120,7 +120,7 @@ export function parse(file: string, projectName: string) : any {
 
           break;
         default:
-          console.warn('Unexepcted line type:' + type);
+          console.warn('Unexpected line type:' + type);
       }
 
     } else {
