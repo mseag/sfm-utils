@@ -59,7 +59,7 @@ let bookObj = {};
 
 if (options.text) {
   // Parse a txt file into JSON Object
-  bookObj = toolbox.parse(options.text);
+  bookObj = toolbox.parse(options.text, "slt");
 
   // For testing, write out each book's JSON to file
 
@@ -76,8 +76,53 @@ if (options.text) {
   process.exit(1)
 }
 
-// Write out the JSON Objects to SFM
 
+
+// Write out the JSON Objects to SFM
 if (bookObj) {
-  console.log("bookObj: " + JSON.stringify(bookObj));
+
+  const ID_MARKER = "\\id ";
+  const USFM_MARKER = "\\usfm ";
+  const HEADER_MARKER = "\\h ";
+  const TOC_MARKER = "\\toc ";
+  const MAIN_TITLE_MARKER = "\\mt ";
+  const CHAPTER_MARKER = "\\c ";
+  const SECTION_MARKER = "\\s1 ";
+  const VERSE_MARKER = "\\v ";
+  const CRLF = "\n";
+
+  const chapters = bookObj['content'];
+
+  //let outputFileName = options.text + '.SFM';
+  let SFMtext = "";
+
+  SFMtext += ID_MARKER + bookObj['header']['bookInfo']['code'] + ' ' +  bookObj['header']['projectName'] + CRLF;
+  SFMtext += USFM_MARKER + '3.0' + CRLF;
+  SFMtext += HEADER_MARKER + bookObj['header']['bookInfo']['name'] + CRLF;
+  SFMtext += TOC_MARKER + bookObj['header']['bookInfo']['name'] + CRLF;
+  SFMtext += MAIN_TITLE_MARKER + bookObj['header']['bookInfo']['name'] + CRLF;
+
+
+  chapters.forEach(function(chapter) {
+    if(chapter['number'] != 0){
+      SFMtext += CHAPTER_MARKER + chapter['number'] as string + CRLF;
+      const sectionsAndVerses = chapter['content'];
+      sectionsAndVerses.forEach(function(snippet) {
+        switch(snippet['type']) {
+          case "section":
+            SFMtext += SECTION_MARKER + snippet['text'] + CRLF;
+            break;
+          case "verse":
+            SFMtext += VERSE_MARKER + snippet['number'] as string + ' ' + snippet['text'] + CRLF;
+            break;
+          default:
+            throw 'Invalid type on ' + JSON.stringify(snippet) + '. \nLooking for "section" or "verse".';
+        }
+      });
+    }
+  });
+
+  // TODO: project name variable
+  fs.writeFileSync('./' + (options.json.replace(/^.*[\\/]/, '')).replace('.json', '.SFM') + "slt", SFMtext);
+
 }
