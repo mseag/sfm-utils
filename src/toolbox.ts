@@ -27,7 +27,7 @@ export interface fileInfoType {
  */
 export function getBookAndChapter(file: string) : fileInfoType {
   const filename = path.parse(file).base;
-  const pattern = new RegExp(/^([A-Za-z]+)_Ch(\d+)_.*\.txt$/);
+  const pattern = /([A-Za-z]+)_(Ch)?(\d+)[_\s].*\.txt$/;
   const match = filename.match(pattern);
   const obj: fileInfoType = {
     bookName: "",
@@ -38,7 +38,7 @@ export function getBookAndChapter(file: string) : fileInfoType {
     const b = new books.Books();
     const bookName = b.getBookByName(match[1]).name;
     obj.bookName = bookName;
-    obj.chapterNumber = parseInt(match[2]);
+    obj.chapterNumber = parseInt(match[3]);
   } else {
     console.warn('Unable to determine info from: ' + filename);
   }
