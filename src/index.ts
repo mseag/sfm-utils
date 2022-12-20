@@ -111,12 +111,32 @@ if (options.json) {
   }
 } else if (filesToParse.length > 0) {
   filesToParse.forEach(file => {
-    bookObj = toolbox.parse(file, "slt");
+    const bookInfo = toolbox.getBookAndChapter(file);
+    if (bookInfo.bookName === "") {
+      // Skip invalid files
+      return;
+    }
+
+    if (bookObj.content.length == 0) {
+      bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
+    }
+
+    const currentChapter = bookInfo.chapterNumber;
+    if (bookObj.content[currentChapter].type != "chapter") {
+      // Initialize current chapter
+      bookObj.content[currentChapter].type = "chapter";
+      bookObj.content[currentChapter].content = [];
+    }
+
+    toolbox.updateObj(bookObj, file, currentChapter);
   });
   // For testing, write out each book's JSON to file
+  fs.writeFileSync('./' + bookObj.header.bookInfo.num +
+    bookObj.header.bookInfo.code + bookObj.header.projectName + '.json', JSON.stringify(bookObj, null, 2));
+  console.info('Writing out book object');
 
 } else {
-  console.warn("No directory or JSON file given. Exiting");
+  console.warn("No input files provided. Exiting");
   process.exit(1)
 }
 

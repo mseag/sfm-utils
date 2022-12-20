@@ -7,7 +7,7 @@ import * as books from './books';
 /**
  * List of recognized (escaped) Toolbox markers
  */
-export type lineType =
+export type markerType =
   "\\c" |
   "\\tx" |
   "\\vs";
@@ -30,7 +30,7 @@ export function getBookAndChapter(file: string) : fileInfoType {
   const pattern = new RegExp(/^([A-Za-z]+)_Ch(\d+)_.*\.txt$/);
   const match = filename.match(pattern);
   const obj: fileInfoType = {
-    bookName: '',
+    bookName: "",
     chapterNumber: 0
   };
   if (match) {
@@ -73,16 +73,13 @@ export function initializeBookObj(bookName: string, projectName: string) : any {
 }
 
 /**
- * Parse a Toolbox text file and convert it to JSON
+ * Parse a Toolbox text file and modify the corresponding
+ * book Object containing the chapter information
+ * @param {book.objType} bookObj - Book object to modify
  * @param {string} file - Path to the Toolbox text file
- * @param {string} projectName - Name of the Paratext project
- * @returns {Object} - Object containing the chapter information
+ * @param {number} currentChapter - Book chapter to modify
  */
-export function parse(file: string, projectName: string) : any {
-  const bookInfo = getBookAndChapter(file);
-  const currentChapter = bookInfo.chapterNumber;
-  const bookObj = initializeBookObj(bookInfo.bookName, projectName);
-
+export function updateObj(bookObj: books.objType, file: string, currentChapter: number) {
   // Read in Toolbox file and strip out empty lines (assuming Windows line-endings)
   let toolboxFile = fs.readFileSync(file, 'utf-8');
   toolboxFile = toolboxFile.replace(/(\r\n){2,}/g, '\r\n');
@@ -93,25 +90,43 @@ export function parse(file: string, projectName: string) : any {
   }
 
   // Split each line on type and content
-  const pattern = new RegExp(/^(\\[A-Za-z]+)\s(.*)$/);
+  const pattern = /(\\[A-Za-z]+)\s(.*)/;
+  let verseNum = 1;
   toolboxData.forEach(line => {
     const match = line.match(pattern);
     if (match) {
-      const type: lineType = match[1] as lineType;
+      const marker: markerType = match[1] as markerType;
       const content: string = match[2];
-      switch (type) {
+      const unit: books.unitType = {
+        "type": "padding",
+        "number": verseNum,
+        "text": content
+      };
+      const contentLength = bookObj.content[currentChapter].content.length;
+
+      switch (marker) {
         case '\\c' :
           break;
         case '\\tx' :
           // Assume we're adding a verse
-
+          unit.type = "verse";
+          unit.text
+          bookObj.content[currentChapter].content.push(unit);
+          verseNum++;
           break;
         case '\\vs' :
-          // Convert previous line from "verse" to "section"
+          // Convert previous line from "verse" to "section", number "1"
+          if (contentLength > 0) {
+            bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+            bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+            verseNum--;
+          } else {
+            console.warn('Warning, section without text');
+          }
 
           break;
         default:
-          console.warn('Unexpected line type:' + type);
+          console.warn('Unexpected line type:' + marker);
       }
 
     } else {
@@ -119,6 +134,5 @@ export function parse(file: string, projectName: string) : any {
     }
 
   });
-  return bookObj;
 }
 
