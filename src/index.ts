@@ -74,21 +74,20 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 // Routing commands to functions
 ////////////////////////////////////////////////////////////////////
 
-const b = new books.Books();
-let bookObj: books.objType = {
-  "header": {
-    "projectName" : "",
-    "bookInfo" : b.getBookByCode("000")
-  },
-  "content": []
-};
-
 if (options.json) {
   // Make a JSON object into an SFM file
   processJSON(options.json);
 } else if (options.text) {
   // Parse a txt file into a JSON object
-  processText(options.text);
+  const b = new books.Books();
+  const bookObj: books.objType = {
+    "header": {
+      "projectName" : "",
+      "bookInfo" : b.getBookByCode("000")
+    },
+    "content": []
+  };
+  processText(options.text, bookObj);
 } else if (options.directory) {
   // Convert the text files in a directory into an SFM book file
   processDirectory(options.directory);
@@ -120,10 +119,19 @@ function processSuperDirectory(superDirectory: string){
  * @param {string} directory - path to directory containing text files
  */
 function processDirectory(directory: string){
+  const b = new books.Books();
+  const bookObj: books.objType = {
+    "header": {
+      "projectName" : "",
+      "bookInfo" : b.getBookByCode("000")
+    },
+    "content": []
+  };
+  // Get all the text files in the directory and then process them
   const filesToParse: string[] = [];
   fileAssistant.getTextFilesInside(directory, filesToParse);
   filesToParse.forEach(file => {
-    processText(file);
+    processText(file, bookObj);
   });
 
   // Write out valid JSON Object to SFM
@@ -137,7 +145,7 @@ function processDirectory(directory: string){
  * Take a text file and make a JSON book type object
  * @param {string} filepath - file path of a single text file
  */
-function processText(filepath: string) {
+function processText(filepath: string, bookObj: books.objType) {
   const bookInfo = toolbox.getBookAndChapter(filepath);
     if (bookInfo.bookName === "Placeholder") {
       // Skip invalid files
@@ -169,7 +177,14 @@ function processText(filepath: string) {
  * @param {string} filepath - file path of a single JSON file
  */
 function processJSON(filepath: string){
-
+  const b = new books.Books();
+  let bookObj: books.objType = {
+    "header": {
+      "projectName" : "",
+      "bookInfo" : b.getBookByCode("000")
+    },
+    "content": []
+  };
   try {
     bookObj = require(filepath);
   } catch (e) {
