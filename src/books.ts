@@ -589,7 +589,7 @@ export class Books {
         break;
       case 'I Corinthians':
       case '1Corinthians':
-        bookName = '1 Corinthians';
+        bookName = "1 Corinthians";
         break;
       case '2Corinthians':
         bookName = '2 Corinthians';
@@ -618,10 +618,11 @@ export class Books {
       default:
         bookName = name;
     }
-    const book : bookType = bookInfo.find(b => b.name === bookName) as bookType;
+    let book : bookType = bookInfo.find(b => b.name === bookName) as bookType;
     if (book === undefined) {
       console.error(`Spreadsheet may have a typo for book name: ${name}. Exiting`);
-      process.exit(1);
+      book = bookInfo[0];
+      //process.exit(1);
     }
     return book;
   }

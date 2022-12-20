@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as books from './books';
 import * as toolbox from './toolbox';
 import * as sfm from './sfm';
+import * as fileAssistant from './fileAssistant';
 const {version} = require('../package.json');
 
 ////////////////////////////////////////////////////////////////////
@@ -19,6 +20,7 @@ program
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
     .option("-j, --json <jsonObject path>", "path to JSON Object file")
     .option("-p, --projectName <name>", "name of the Paratext project>")
+    .option("-s, --superDirectory <path to a directory containing directories for each book in a project>", "path to a directory containing directories for each book in a project")
   .parse(process.argv);
 
 // Debugging parameters
@@ -38,10 +40,13 @@ if (debugParameters) {
   if (options.projectName) {
     console.log(`Project Name: "${options.projectName}`);
   }
+  if (options.superDirectory){
+    console.log(`Project Directory: "${options.projectName}`);
+  }
   console.log('\n');
 }
 
-// Project Neme required
+// Project Name required
 if (!options.projectName) {
   console.error("Project name required");
   process.exit(1);
@@ -60,9 +65,13 @@ if (options.json && !fs.existsSync(options.json)) {
   console.error("Can't open JSON file " + options.json);
   process.exit(1);
 }
+if (options.json && !fs.existsSync(options.superDirectory)) {
+  console.error("Can't open project directory " + options.superDirectory);
+  process.exit(1);
+}
 
 ////////////////////////////////////////////////////////////////////
-// End of parameters
+// Routing commands to functions
 ////////////////////////////////////////////////////////////////////
 
 const b = new books.Books();
@@ -74,45 +83,63 @@ let bookObj: books.objType = {
   "content": []
 };
 
-const filesToParse: string[] = [];
-
-if (options.text) {
-  // Parse a txt file into JSON Object
-  filesToParse.push(options.text);
+if (options.json) {
+  // Make a JSON object into an SFM file
+  processJSON(options.json);
+} else if (options.text) {
+  // Parse a txt file into a JSON object
+  processText(options.text);
 } else if (options.directory) {
-  // Get a list of all txt files in options.directory and ignore certain directories
-  getTextFilesInside(options.directory, filesToParse);
+  // Convert the text files in a directory into an SFM book file
+  processDirectory(options.directory);
+} else if (options.superDirectory) {
+  // Make all book folders from a super folder into SFM book files
+  processSuperDirectory(options.superDirectory);
 }
 
-// Recursively puts text files from a directory into an array
-function getTextFilesInside(directory, fileArray){
-  fs.readdirSync(directory).forEach(function(file){
-    const absolutePath = path.join(directory, file);
-    if (fs.statSync(absolutePath).isDirectory()){
-      return getTextFilesInside(absolutePath, fileArray);
-    }
-    else{
-      if(file.substring(file.lastIndexOf('.')+1, file.length) === 'txt'){
-        fileArray.push(absolutePath);
-      }
-      return;
-    }
+
+////////////////////////////////////////////////////////////////////
+// Processor functions
+////////////////////////////////////////////////////////////////////
+
+/**
+ * Take a project directory with a directory inside for each book, and make an SFM file for each book
+ * @param {string} superDirectory - path to a directory containing directories for each book in a project
+ */
+function processSuperDirectory(superDirectory: string){
+  const bookDirectories: string[] = [];
+  fileAssistant.getBookDirectories(superDirectory, bookDirectories);
+  bookDirectories.forEach(directory => {
+    processDirectory(directory);
   });
 }
 
 
-if (options.json) {
-  // Get the book status from the JSON file
-  try {
-    bookObj = require(options.json);
-  } catch (e) {
-    console.error("Invalid JSON file. Exiting")
-    process.exit(1);
-  }
-} else if (filesToParse.length > 0) {
+/**
+ * Take a directory with toolbox text chapter files and make an SFM book file
+ * @param {string} directory - path to directory containing text files
+ */
+function processDirectory(directory: string){
+  const filesToParse: string[] = [];
+  fileAssistant.getTextFilesInside(directory, filesToParse);
   filesToParse.forEach(file => {
-    const bookInfo = toolbox.getBookAndChapter(file);
-    if (bookInfo.bookName === "") {
+    processText(file);
+  });
+
+  // Write out valid JSON Object to SFM
+  if (bookObj.header.bookInfo.code !== "000") {
+    sfm.convertToSFM(bookObj);
+  }
+}
+
+
+/**
+ * Take a text file and make a JSON book type object
+ * @param {string} filepath - file path of a single text file
+ */
+function processText(filepath: string) {
+  const bookInfo = toolbox.getBookAndChapter(filepath);
+    if (bookInfo.bookName === "Placeholder") {
       // Skip invalid files
       return;
     }
@@ -128,24 +155,32 @@ if (options.json) {
       bookObj.content[currentChapter].content = [];
     }
 
-    toolbox.updateObj(bookObj, file, currentChapter);
-  });
-  // For testing, write out each book's JSON to file
-  if (bookObj.header.bookInfo.code !== "000") {
-    const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
-    fs.writeFileSync('./' + padZero + bookObj.header.bookInfo.num +
-      bookObj.header.bookInfo.code + bookObj.header.projectName + '.json', JSON.stringify(bookObj, null, 2));
-    console.info('Writing out book object');
+    toolbox.updateObj(bookObj, filepath, currentChapter);
+
+}
+
+
+/**
+ * Take a JSON file and make an SFM file
+ * @param {string} filepath - file path of a single JSON file
+ */
+function processJSON(filepath: string){
+
+  try {
+    bookObj = require(filepath);
+  } catch (e) {
+    console.error("Invalid JSON file. Exiting")
+    process.exit(1);
   }
 
-} else {
-  console.warn("No input files provided. Exiting");
-  process.exit(1)
+  // Write out valid JSON Object to SFM
+  if (bookObj.header.bookInfo.code !== "000") {
+    sfm.convertToSFM(bookObj);
+  }
+
 }
 
 
-
-// Write out valid JSON Objects to SFM
-if (bookObj.header.bookInfo.code !== "000") {
-  sfm.convertToSFM(bookObj);
-}
+////////////////////////////////////////////////////////////////////
+// End of processor functions
+////////////////////////////////////////////////////////////////////
