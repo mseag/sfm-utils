@@ -25,8 +25,8 @@ program
 
 // Debugging parameters
 const options = program.opts();
-const debugParameters = true;
-if (debugParameters) {
+const debugMode = true;
+if (debugMode) {
   console.log('Parameters:');
   if (options.text) {
     console.log(`Toolbox text file path: "${options.text}"`);
@@ -134,15 +134,12 @@ function processDirectory(directory: string){
     bookObj = processText(file, bookObj);
   });
 
-  // Write out valid JSON Object to SFM
+  // Directory processed, so write valid output
   if (bookObj.header.bookInfo.code !== "000") {
     // For testing, write out book JSON Object
-    const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
-    fs.writeFileSync('./' + padZero + bookObj.header.bookInfo.num +
-      bookObj.header.bookInfo.code + bookObj.header.projectName + '.json',
-      JSON.stringify(bookObj, null, 2));
-    console.info('Writing out book object');
+    writeJSON(bookObj);
 
+    // valid JSON Object to SFM
     sfm.convertToSFM(bookObj);
   }
 }
@@ -174,14 +171,10 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
 
     toolbox.updateObj(bookObj, filepath, currentChapter);
 
-    // For single file parameter, write output
+    // For single file parameter, write valid output
     if (options.text && bookObj.header.bookInfo.code !== "000") {
       // For testing, write out book JSON Object
-      const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
-      fs.writeFileSync('./' + padZero + bookObj.header.bookInfo.num +
-        bookObj.header.bookInfo.code + bookObj.header.projectName + '.json',
-        JSON.stringify(bookObj, null, 2));
-      console.info('Writing out book object');
+      writeJSON(bookObj);
 
       //valid JSON Object to SFM
       sfm.convertToSFM(bookObj);
@@ -222,3 +215,22 @@ function processJSON(filepath: string){
 ////////////////////////////////////////////////////////////////////
 // End of processor functions
 ////////////////////////////////////////////////////////////////////
+
+/**
+ * Write JSON file (for testing purposes).
+ * Filename will be [##][XYZ][Project name].json
+ * ## - 2-digit book number
+ * XYZ - 3 character book code
+ * Project name - Paratext project name
+ * @param {books.bookType} bookObj - the book object to write to file
+ */
+function writeJSON(bookObj: books.objType) {
+  if (debugMode) {
+    // Add leading 0 if book number < 10
+    const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
+    const filename = padZero + bookObj.header.bookInfo.num +
+      bookObj.header.bookInfo.code + bookObj.header.projectName + '.json';
+    fs.writeFileSync('./' + filename, JSON.stringify(bookObj, null, 2));
+    console.info(`Writing out "${filename}"`);
+  }
+}
