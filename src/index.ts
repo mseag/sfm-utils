@@ -65,7 +65,7 @@ if (options.json && !fs.existsSync(options.json)) {
   console.error("Can't open JSON file " + options.json);
   process.exit(1);
 }
-if (options.json && !fs.existsSync(options.superDirectory)) {
+if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
   console.error("Can't open project directory " + options.superDirectory);
   process.exit(1);
 }

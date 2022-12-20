@@ -33,15 +33,17 @@ export function getBookAndChapter(file: string) : fileInfoType {
   const pattern = /([0-9A-Za-z]+)_(Ch|ch)?(\d+)[_\s]?.*\.txt/;
   const match = filename.match(pattern);
   const obj: fileInfoType = {
-    bookName: "",
+    bookName: "Placeholder",
     chapterNumber: 0
   };
   if (match) {
     // Fix any typo in book name
     const b = new books.Books();
     const bookName = b.getBookByName(match[1]).name;
-    obj.bookName = bookName;
-    obj.chapterNumber = parseInt(match[3]);
+    if (bookName !== "Placeholder") {
+      obj.bookName = bookName;
+      obj.chapterNumber = parseInt(match[3]);
+    }
   } else {
     console.warn('Unable to determine info from: ' + filename);
   }
