@@ -157,6 +157,10 @@ function processText(filepath: string) {
 
     toolbox.updateObj(bookObj, filepath, currentChapter);
 
+    // For single file parameter, write out valid JSON Object to SFM
+    if (options.text && bookObj.header.bookInfo.code !== "000") {
+      sfm.convertToSFM(bookObj);
+    }
 }
 
 

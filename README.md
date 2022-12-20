@@ -6,6 +6,14 @@ Utilities to parse text files (e.g. from Toolbox) and migrate SFM markers into a
 Note for developers: Replace `sfm-utils.exe` references with `node dist/index.js`.
 
 -----
+### Project name
+Command-line
+```bash
+sfm-utils.exe
+    -p [Paratext project name (can be 3-character abbreviation)]
+```
+
+This parameter is required and used with the optional parameters below.
 
 ### Convert a single text file
 
@@ -23,10 +31,7 @@ sfm-utils.exe
     -d [path to folders of txt files]
 ```
 
-### JSON Book file
-The JSON book file has a name
-
-### Use a JSON status file for testing
+### JSON Book status file for testing
 
 Command-line:
 ```bash

@@ -49,7 +49,14 @@ export function getBookAndChapter(file: string) : fileInfoType {
   return obj;
 }
 
-export function initializeBookObj(bookName: string, projectName: string) : any {
+/**
+ *
+ * @param {string} bookName - canonical book name
+ * @param {string} projectName - Paratext project name
+ * @returns {books.objType} - Initialized object for the current book,
+ *         with padding for the expected number of chapters
+ */
+export function initializeBookObj(bookName: string, projectName: string) : books.objType {
   const b = new books.Books();
   const bookType = b.getBookByName(bookName);
 

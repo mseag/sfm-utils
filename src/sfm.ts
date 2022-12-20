@@ -5,7 +5,7 @@ import * as fs from 'fs';
  * Parse a JSON file and converts it to USFM
  * @param {Books.objType} bookObj - a book type of JSON object
  */
-export function convertToSFM(bookObj: books.objType) : any {
+export function convertToSFM(bookObj: books.objType) {
 
   const ID_MARKER = "\\id ";
   const USFM_MARKER = "\\usfm ";
@@ -55,5 +55,4 @@ export function convertToSFM(bookObj: books.objType) : any {
   const projectName = bookObj.header.projectName;
   const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
   fs.writeFileSync('./' + padZero + bookNum + bookCode + projectName + '.SFM', SFMtext);
-
 }
