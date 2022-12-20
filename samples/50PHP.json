@@ -4,7 +4,7 @@
       "bookInfo": {
       "code": "PHP",
       "name": "Philippians",
-      "num": 56,
+      "num": 50,
       "chapters": 4,
       "verses": 104
       }
@@ -348,7 +348,7 @@
     },
     {
       "type": "chapter",
-      "numnber": 3,
+      "number": 3,
       "content": [
         {
           "type": "section",

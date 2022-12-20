@@ -96,12 +96,12 @@ if (bookObj) {
   const MAIN_TITLE_MARKER = "\\mt ";
   const CHAPTER_MARKER = "\\c ";
   const SECTION_MARKER = "\\s1 ";
+  const PARAGRAPH_MARKER = "\n\\p";
   const VERSE_MARKER = "\\v ";
   const CRLF = "\n";
 
   const chapters = bookObj['content'];
 
-  //let outputFileName = options.text + '.SFM';
   let SFMtext = "";
 
   SFMtext += ID_MARKER + bookObj['header']['bookInfo']['code'] + ' ' +  bookObj['header']['projectName'] + CRLF;
@@ -118,7 +118,7 @@ if (bookObj) {
       sectionsAndVerses.forEach(function(snippet) {
         switch(snippet['type']) {
           case "section":
-            SFMtext += SECTION_MARKER + snippet['text'] + CRLF;
+            SFMtext += SECTION_MARKER + snippet['text'] + PARAGRAPH_MARKER + CRLF;
             break;
           case "verse":
             SFMtext += VERSE_MARKER + snippet['number'] as string + ' ' + snippet['text'] + CRLF;
@@ -130,7 +130,9 @@ if (bookObj) {
     }
   });
 
-  // TODO: project name variable
-  fs.writeFileSync('./' + (options.json.replace(/^.*[\\/]/, '')).replace('.json', '.SFM') + "slt", SFMtext);
+  const bookNum = bookObj['header']['bookInfo']['num'];
+  const bookCode = bookObj['header']['bookInfo']['code'];
+  const projectName = bookObj['header']['projectName'];
+  fs.writeFileSync('./' + bookNum + bookCode + projectName + '.SFM', SFMtext);
 
 }
