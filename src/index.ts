@@ -108,39 +108,41 @@ if (bookObj) {
   const VERSE_MARKER = "\\v ";
   const CRLF = "\n";
 
-  const chapters = bookObj['content'];
+  const chapters = bookObj.content;
 
   let SFMtext = "";
 
-  SFMtext += ID_MARKER + bookObj['header']['bookInfo']['code'] + ' ' +  bookObj['header']['projectName'] + CRLF;
+  SFMtext += ID_MARKER + bookObj.header.bookInfo.code + ' ' +  bookObj.header.projectName + CRLF;
   SFMtext += USFM_MARKER + '3.0' + CRLF;
-  SFMtext += HEADER_MARKER + bookObj['header']['bookInfo']['name'] + CRLF;
-  SFMtext += TOC_MARKER + bookObj['header']['bookInfo']['name'] + CRLF;
-  SFMtext += MAIN_TITLE_MARKER + bookObj['header']['bookInfo']['name'] + CRLF;
+  SFMtext += HEADER_MARKER + bookObj.header.bookInfo.name + CRLF;
+  SFMtext += TOC_MARKER + bookObj.header.bookInfo.name + CRLF;
+  SFMtext += MAIN_TITLE_MARKER + bookObj.header.bookInfo.name + CRLF;
 
 
   chapters.forEach(function(chapter) {
-    if(chapter['number'] != 0){
-      SFMtext += CHAPTER_MARKER + chapter['number'] as string + CRLF;
-      const sectionsAndVerses = chapter['content'];
-      sectionsAndVerses.forEach(function(snippet) {
-        switch(snippet['type']) {
-          case "section":
-            SFMtext += SECTION_MARKER + snippet['text'] + PARAGRAPH_MARKER + CRLF;
-            break;
-          case "verse":
-            SFMtext += VERSE_MARKER + snippet['number'] as string + ' ' + snippet['text'] + CRLF;
-            break;
-          default:
-            throw 'Invalid type on ' + JSON.stringify(snippet) + '. \nLooking for "section" or "verse".';
-        }
-      });
+    if(chapter.number != 0){
+      SFMtext += CHAPTER_MARKER + chapter.number + CRLF;
+      if(chapter.content){
+        const sectionsAndVerses = chapter.content;
+        sectionsAndVerses.forEach(function(unit) {
+          switch(unit.type) {
+            case "section":
+              SFMtext += SECTION_MARKER + unit.text + PARAGRAPH_MARKER + CRLF;
+              break;
+            case "verse":
+              SFMtext += VERSE_MARKER + unit.number + ' ' + unit.text + CRLF;
+              break;
+            default:
+              throw 'Invalid type on ' + JSON.stringify(unit) + '. \nLooking for "section" or "verse".';
+          }
+        });
+      }
     }
   });
 
-  const bookNum = bookObj['header']['bookInfo']['num'];
-  const bookCode = bookObj['header']['bookInfo']['code'];
-  const projectName = bookObj['header']['projectName'];
+  const bookNum = bookObj.header.bookInfo.num;
+  const bookCode = bookObj.header.bookInfo.code;
+  const projectName = bookObj.header.projectName;
   fs.writeFileSync('./' + bookNum + bookCode + projectName + '.SFM', SFMtext);
 
 }
