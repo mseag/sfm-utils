@@ -61,17 +61,9 @@ export function getBookAndChapter(file: string) : fileInfoType {
   return obj;
 }
 
-/**
- * Parse a Toolbox text file and convert it to JSON
- * @param {string} file - Path to the Toolbox text file
- * @param {string} projectName - Name of the Paratext project
- * @returns {Object} - Object containing the chapter information
- */
-export function parse(file: string, projectName: string) : any {
-  const bookInfo = getBookAndChapter(file);
-  const currentChapter = bookInfo.chapterNumber;
+export function initializeBookObj(bookName: string, projectName: string) : any {
   const b = new books.Books();
-  const bookType = b.getBookByName(bookInfo.bookName);
+  const bookType = b.getBookByName(bookName);
 
   // Initialize book object and content for the number of chapters
   const bookObj : objType = {
@@ -82,7 +74,8 @@ export function parse(file: string, projectName: string) : any {
     "content": []
   };
 
-  // Initialize book object with padding for each chapter (index 0 is extra padding)
+  // Intialize book object with padding for each chapter
+  // index 0 is extra padding since chapters are 1-based
   for (let i = 0; i < bookType.chapters+1; i++) {
     const padding = {
       "type": "padding",
@@ -90,6 +83,20 @@ export function parse(file: string, projectName: string) : any {
     };
     bookObj.content.push(padding);
   }
+
+  return bookObj;
+}
+
+/**
+ * Parse a Toolbox text file and convert it to JSON
+ * @param {string} file - Path to the Toolbox text file
+ * @param {string} projectName - Name of the Paratext project
+ * @returns {Object} - Object containing the chapter information
+ */
+export function parse(file: string, projectName: string) : any {
+  const bookInfo = getBookAndChapter(file);
+  const currentChapter = bookInfo.chapterNumber;
+  const bookObj = initializeBookObj(bookInfo.bookName, projectName);
 
   // Read in Toolbox file and strip out empty lines (assuming Windows line-endings)
   let toolboxFile = fs.readFileSync(file, 'utf-8');
@@ -101,12 +108,11 @@ export function parse(file: string, projectName: string) : any {
   }
 
   // Split each line on type and content
-  const pattern = new RegExp(/^(\\\w+)\s(.*)$/);
+  const pattern = new RegExp(/^(\\{2}[A-Za-z]+)\s(.*)$/);
   toolboxData.forEach(line => {
-    //
     const match = line.match(pattern);
     if (match) {
-      const type: string = match[1];
+      const type: lineType = match[1] as lineType;
       const content: string = match[2];
       switch (type) {
         case '\\c' :
@@ -128,6 +134,6 @@ export function parse(file: string, projectName: string) : any {
     }
 
   });
-  return {};
+  return bookObj;
 }
 

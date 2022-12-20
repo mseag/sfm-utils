@@ -1,4 +1,185 @@
-  [
+{
+  "header": {
+      "projectName": "slt",
+      "bookInfo": {
+      "code": "PHP",
+      "name": "Philippians",
+      "num": 56,
+      "chapters": 4,
+      "verses": 104
+      }
+  },
+  "content": [
+    {
+      "type": "padding",
+      "number": 0
+    },
+    {
+      "type": "chapter",
+      "number": 1,
+      "content": [
+        {
+          "type": "verse",
+          "number": 1,
+          "text": "anɔ̀h mɛ̀h nàŋsẃw tòh píc polòo, póˑ timòtʰèev, kɔ́ɔn tiké/ pʰra/yesúu kʰrístòo. kʰyɛ̀ɛn kàh tìˑ hi/i/ saksít kʰɔ̀ŋ pʰra/yesúu kʰrístòo, mɔ̀/ tì/ ŋòot tìˑ ntè/ mə̀əŋ pʰilippooy, póˑ tìˑ hi/i/ kẃn kèe/ tì/ sicə́y raksáa pʰa/cáv."
+        },
+        {
+          "type": "verse",
+          "number": 2,
+          "text": "rɔ́ɔ kàh kùn.kò̬o̬ŋ lɔ̀k tì/ tòh píc pʰra/pincáv, póˑ pʰra/yesúu kʰrístòo ŋòot póˑ pɛ́ɛ/ tɔ́ŋ.ác kùu i/."
+        },
+        {
+          "type": "section",
+          "number": 1,
+          "text": "rəlò̬/ polòo súat rɔ́ɔ."
+        },
+        {
+          "type": "verse",
+          "number": 3,
+          "text": "kùu ràav o/ tʰrikẁt tòh tìˑ pɛ́ɛ/, o/ lɔ̀k pʰéem tìˑ pʰra/pincáv."
+        },
+        {
+          "type": "verse",
+          "number": 4,
+          "text": "o/ lɔ̀k pʰéem tì/ súat tẁw samlàp pɛ́ɛ/ tɔ́ŋ.ác."
+        },
+        {
+          "type": "verse",
+          "number": 5,
+          "text": "o/ lɔ̀k pʰéem tìˑ pʰra/pincáv samlàp vèek tì/ pɛ́ɛ/ ác cò̬o̬y o/, yẁm o/ prán sɔ́ɔn kʰáav lɔ̀k kʰáav bɔ́h. pɛ́ɛ/ rɛ̀ɛk tì/ cò̬o̬y o/ táŋ píc pɛ́ɛ/ kóoy rəlò̬/ tẁwm cò̬n tòh pwl/ə̀h."
+        },
+        {
+          "type": "verse",
+          "number": 6,
+          "text": "pʰra/pincáv rɛ̀ɛk tì/ plɔ́/ lɔ̀k tìˑ ntè/ pɛ́ɛ/. o/ nɛ́ɛ/ ñìh lɔ̀ɔ, àn cìi plɔ́/ kàh àn hóoc cò̬n siŋì/ pʰra/yesúu kʰrístòo tòh."
+        },
+        {
+          "type": "verse",
+          "number": 7,
+          "text": "o/ sɔ́ŋ lɔ̀ɔ, o/ tʰrikẁt lə̀əŋ anɔ̀h àn mɛ̀ɛn samlàp pɛ́ɛ/ tɔ́ŋ.ác. o/ nɛ́ɛ/ ñìh ñò̬o̬n o/ ràk pɛ́ɛ/ tìˑ ntè/ pʰéem o/. pɛ́ɛ/ bɛ́ɛŋ pán kùn.kò̬o̬ŋ lɔ̀k kʰɔ̀ŋ pʰra/pincáv póˑ o/ tɔ́ŋ.ác kùu i/. yẁm o/ ŋòot tìˑ ntè/ kʰùk, yẁm o/ swráaŋ tì/ lɔ̀ɔ rəlò̬/ plèh kàh àn mɛ̀h ñìh lə̀əŋ kʰáav lɔ̀k kʰáav bɔ́h. pʰra/pincáv àn sɔ́ŋ, lɔ̀ɔ, o/ càat.mɛ̀ɛ só/ tàm pɛ́ɛ/ màak. o/ ràk pɛ́ɛ/ tɔ́ŋ.ác póˑ rəlò̬/ ràk pʰra/yesúu kʰrístòo."
+        },
+        {
+          "type": "verse",
+          "number": 8,
+          "text": "pʰra/pincáv àn sɔ́ŋ, lɔ̀ɔ, o/ càat.mɛ̀ɛ só/ tàm pɛ́ɛ/ màak. o/ ràk pɛ́ɛ/ tɔ́ŋ.ác póˑ rəlò̬/ ràk pʰra/yesúu kʰrístòo."
+        },
+        {
+          "type": "verse",
+          "number": 9,
+          "text": "anɔ̀h mɛ̀h rəlò̬/ o/ súat rɔ́ɔ samlàp pɛ́ɛ/, kàh pɛ́ɛ/ kóoy rəlò̬/ ràk màak rɛ̀h tʰɛ́ɛm, kàh pɛ́ɛ/ kóoy kamkẁt panñàa sɔ́ŋ póˑ rəlò̬/ ràk anɛ̀h."
+        },
+        {
+          "type": "verse",
+          "number": 10,
+          "text": "pɛ́ɛ/ cìi tàm àn táaŋ tʰrinà/ lɔ̀k póˑ kóˑ lɔ̀k, kàh pɛ́ɛ/ lə̀ək tì/ ɛ́h àn tì/ lɔ̀k, kàh pɛ́ɛ/ mɛ̀h hi/i/ lɔ̀k, cɛ́ɛŋ cəəs, okóoy mɛ̀h pʰít, yẁm pʰra/yesúu cìi cùa tòh tʰɛ́ɛm."
+        },
+        {
+          "type": "verse",
+          "number": 11,
+          "text": "pɛ́ɛ/ cìi plɔ́/ síiŋ tì/ lɔ̀k màak cẁw póˑ pʰra/yesúu tìˑ nɛ̀h, àn tì/ cò̬o̬y pɛ́ɛ/. kàh pɛ́ɛ/ otòh kìat otòh ñòt tìˑ pʰra/pincáv."
+        },
+        {
+          "type": "verse",
+          "number": 12,
+          "text": "polòo lɔ̀ɔ, yò/ ɛ̀ɛk ə̀əy, o/ só/ kàh pɛ́ɛ/ sɔ́ŋ, lɔ̀ɔ, àn ác kẃwt mɛ̀h yàav mɛ̀h tìˑ o/. àn mɛ̀h o/ tì/ ác cɛ́ɛk /yáay kʰáav lɔ̀k kʰáav bɔ́h anɔ̀h."
+        },
+        {
+          "type": "verse",
+          "number": 13,
+          "text": "pwl/ə̀h o/ ŋòot tìˑ ntè/ kʰùk, ñò̬o̬n o/ tẁwm pʰra/ kʰrístòo. kùu bɔ́ɔn tɔ̀ŋ i/ kùm tɔ̀ŋ i/ ráŋ hi/i/. kùu i/ mɔ̀/ kò̬o̬ sɔ́ŋ lə̀əŋ anɔ̀h."
+        },
+        {
+          "type": "verse",
+          "number": 14,
+          "text": "o/ nɔ́ɔŋ ŋòot tìˑ ntè/ kʰùk, tɛ̀ɛ samlàp i/ tì/ kóoy pʰéem tẁwm. pwl/ə̀h màak i/ àm lɔ̀k tì/. kèe/ kóoy pʰéem káa/ tì/ lɔ̀ɔ kʰáav lɔ̀k kʰáav bɔ́h lə̀əŋ pʰra/ kʰrístòo."
+        },
+        {
+          "type": "verse",
+          "number": 15,
+          "text": "àn mɛ̀h ñìh, kóoy báaŋ i/ kèe/ prán sɔ́ɔn lə̀əŋ pʰra/ kʰrístòo, ñò̬o̬n kèe/ crikè/ rwŋkàal pò̬/.tì/. tɛ̀ɛ báaŋ i/ kèe/ prán sɔ́ɔn lə̀əŋ pʰra/ kʰrístòo, ñò̬o̬n kèe/ só/ cò̬o̬y."
+        },
+        {
+          "type": "verse",
+          "number": 16,
+          "text": "kèe/ prán sɔ́ɔn ñò̬o̬n kèe/ kóoy pʰéem ràk, kèe/ sɔ́ŋ lɔ̀ɔ àn mɛ̀h pʰra/pincáv tì/ kàh o/ plɔ́/ vèek swráaŋ kinà/ kʰáav lɔ̀k kʰáav bɔ́h anɔ̀h."
+        },
+        {
+          "type": "verse",
+          "number": 17,
+          "text": "tɛ̀ɛ hi/i/ i/ kipò̬/ kèe/ prán sɔ́ɔn lə̀əŋ pʰra/ kʰrístòo, ñò̬o̬n kèe/ mɛ̀h hi/i/ rimɛ̀ɛm. samlàp vèek kèe/ prán sɔ́ɔn anɛ̀h àn pʰít. kèe/ só/ plɔ́/ banháa samlàp o/ tì/ ŋòot ntè/ kʰùk."
+        },
+        {
+          "type": "verse",
+          "number": 18,
+          "text": "tɛ̀ɛ tʰáa làmlay mɔ́ɔ kèe/ plɔ́/ banháa samlàp o/. síiŋ tì/ samkʰán anɛ̀h, àn mɛ̀h kèe/ prán sɔ́ɔn lə̀əŋ pʰra/ kʰrístòo. kèe/ kʰùan tì/ plɔ́/ kàh àn mɛ̀ɛn. tɛ̀ɛ mɔ́ɔ kèe/ kíi plɔ́/ àn pʰít mɔ̀/, o/ kò̬o̬ kláay lɔ̀k pʰéem. kàh pɛ́ɛ/ súat samlàp o/, kàh kwlpò/ pʰra/yesúu cò̬o̬y o/. o/ sɔ́ŋ lɔ̀ɔ banháa anɔ̀h àn otòh kàh i/ cò̬o̬y pənpò̬n o/."
+        },
+        {
+          "type": "verse",
+          "number": 19,
+          "text": "kàh pɛ́ɛ/ súat samlàp o/, kàh kwlpò/ pʰra/yesúu cò̬o̬y o/. o/ sɔ́ŋ lɔ̀ɔ banháa anɔ̀h àn otòh kàh i/ cò̬o̬y pənpò̬n o/."
+        },
+        {
+          "type": "verse",
+          "number": 20,
+          "text": "síiŋ tì/ o/ só/ ɛ́h póˑ síiŋ tì/ o/ vɔ́ŋ. anɛ̀h àn cìi kóˑ plɔ́/ kàh o/ looc, píc mɛ̀h mɔ̀/ tẃm mòh cẁw tìˑ ntè/ pʰra/ kʰrístòo. o/ vɔ́ŋ lɔ̀ɔ o/ kóoy pʰéem káa/ pwl/ə̀h, cá/ o/ kəəy kóoy, àn pléh pwnsó̬h kùn.kò̬o̬ŋ lɔ̀k samlàp pʰra/ kʰrístòo tìˑ còo o/ tìˑ ɔ̀h. tìˑ ntè/ lòok anɔ̀h o/ cìi yàm ò̬o̬ ìim, anɛ̀h àn mɛ̀h vèek tì/ o/ só/ plɔ́/. síiŋ tì/ samkʰán tìˑ o/ tisʊ́t lə̀əŋ kóoy còo ìim àn mɛ̀h pʰra/ kʰrístòo. kíi.mɛ̀h nẁm rəmyàm mɔ̀/, àn kò̬o̬ kóoy pəñòot samlàp o/."
+        },
+        {
+          "type": "verse",
+          "number": 21,
+          "text": "síiŋ tì/ samkʰán tìˑ o/ tisʊ́t lə̀əŋ kóoy còo ìim àn mɛ̀h pʰra/ kʰrístòo. kíi.mɛ̀h nẁm rəmyàm mɔ̀/, àn kò̬o̬ kóoy pəñòot samlàp o/."
+        },
+        {
+          "type": "verse",
+          "number": 22,
+          "text": "mɔ́ɔ o/ nɔ́ɔŋ kóoy còo ìim, tóo o/ kò̬o̬ samàat tì/ plɔ́/ vèek pʰa/cáv. tɛ̀ɛ o/ cìi lə̀ək ti/ ɛ́h amɔ̀/, yàm ò̬o̬ ìimʔ o/ kóˑ sɔ́ŋ."
+        },
+        {
+          "type": "verse",
+          "number": 23,
+          "text": "tʰrinà/ anɔ̀h li/àa cẁw, i/ lə̀ək àn càat.mɛ̀ɛ yàak. o/ só/ hó̬k píc còo anɔ̀h vɔ̀k ŋòot póˑ pʰra/ kʰrístòo, anɛ̀h àn lɔ̀k màak lə́ə i/."
+        },
+        {
+          "type": "verse",
+          "number": 24,
+          "text": "tɛ̀ɛ pɛ́ɛ/ tò̬o̬ŋ káan o/ tìˑ ɔ̀h, tìˑ ntè/ tóo o/, o/ sɔ́ŋ lɔ̀ɔ pɛ́ɛ/ tò̬o̬ŋ káan o/."
+        },
+        {
+          "type": "verse",
+          "number": 25,
+          "text": "o/ sɔ́ŋ lɔ̀ɔ o/ ŋòot póˑ pɛ́ɛ/. o/ cìi cò̬o̬y kàh pɛ́ɛ/ prɛ̀ɛ/ rɛ̀h màak, kàh pɛ́ɛ/ sə́əs sə́əl, kóoy rəlò̬/ tẁwm."
+        },
+        {
+          "type": "verse",
+          "number": 26,
+          "text": "pɛ́ɛ/ cìi càat.mɛ̀ɛ lɔ̀k pʰéem tìˑ ntè/ pʰra/yesúu kʰrístòo, yẁm o/ cìi tòh ŋòot póˑ pɛ́ɛ/ tʰɛ́ɛm."
+        },
+        {
+          "type": "verse",
+          "number": 27,
+          "text": "tɛ̀ɛ rɔ́ɔ kàh àn nɛ́ɛnò̬o̬n, lɔ̀ɔ, pɛ́ɛ/ ŋòot lɔ̀ŋ àn trɔ́/ lɔ̀ŋ án cɛ̀ɛp, tìˑ kʰáav lɔ̀k kʰáav bɔ́h kʰɔ̀ŋ pʰra/ kʰrístòo."
+        },
+        {
+          "type": "verse",
+          "number": 27,
+          "text": "yẁm o/ tòh ɛ̀ɛv pɛ́ɛ/, ò̬o̬ yẁm o/ ŋòot səŋáay kò̬o̬ càaŋ, o/ cìi àm síiŋ tì/ lɔ̀k samlàp pɛ́ɛ/. anɛ̀h o/ cìi sɔ́ŋ lɔ̀ɔ, pɛ́ɛ/ nɔ́ɔŋ mɛ̀h mòh i/ mòh pʰéem, rùum pò̬/.tì/ plɔ́/ vèek kàh àn mɛ̀h nẁm mòh pẁwŋ, tẁwm tùul póˑ pò̬/.tì/ tìˑ kʰáav bɔ́h. hóoc pɛ́ɛ/ cìi kóˑ láat hi/i/ kèe/ anɔ̀h mɔ̀/ tì/ to̬súu pɛ́ɛ/. síiŋ kèe/ anɔ̀h tɔ́ŋ.ác àn tòh píc pʰra/pincáv, anɛ̀h àn cìi cò̬o̬y pənpò̬n pɛ́ɛ/, sat.tùu pɛ́ɛ/ kèe/ cìi kàan kóˑ pɛ̀ɛv."
+        },
+        {
+          "type": "verse",
+          "number": 28,
+          "text": "hóoc pɛ́ɛ/ cìi kóˑ láat hi/i/ kèe/ anɔ̀h mɔ̀/ tì/ to̬súu pɛ́ɛ/. síiŋ kèe/ anɔ̀h tɔ́ŋ.ác àn tòh píc pʰra/pincáv, anɛ̀h àn cìi cò̬o̬y pənpò̬n pɛ́ɛ/, sat.tùu pɛ́ɛ/ kèe/ cìi kàan kóˑ pɛ̀ɛv."
+        },
+        {
+          "type": "verse",
+          "number": 29,
+          "text": "pʰra/pincáv kàh anɔ̀h tìˑ pɛ́ɛ/ tɔ́ŋ li/àa, tìˑ ntè/ pʰra/ kʰrístòo. rəlò̬/ tẁwm póˑ rəlò̬/ tòk təəl samlàp pʰra/ kʰrístòo. síiŋ kàa anɔ̀h tɔ́ŋ li/àa, àn otòh kìat otòh ñòt tìˑ pʰra/ kʰrístòo."
+        },
+        {
+          "type": "verse",
+          "number": 30,
+          "text": "yẁm o/ ŋòot póˑ pɛ́ɛ/, pɛ́ɛ/ tàm tòk mɛ̀h tì/ o/ kóoy. pwl/ə̀h pɛ́ɛ/ àm lə̀əŋ tòk tì/ o/ kóoy. pɛ́ɛ/ póˑ kèe/ tì/ mɛ̀h kʰɔ́ɔy pẁp tòk simə̀ə pò̬/.tì/."
+        }
+      ]
+    },
     {
       "type": "chapter",
       "number": 2,
@@ -413,6 +594,4 @@
       ]
     }
   ]
-
-
-
+}
