@@ -17,6 +17,7 @@ program
     .option("-t, --text <path to single text file>", "path to a Toolbox text file")
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
     .option("-j, --json <jsonObject path>", "path to JSON Object file")
+    .option("-p, --projectName <name>", "name of the Paratext project>")
   .parse(process.argv);
 
 // Debugging parameters
@@ -33,7 +34,16 @@ if (debugParameters) {
   if (options.json) {
     console.log(`JSON file: "${options.json}"`);
   }
+  if (options.projectName) {
+    console.log(`Project Name: "${options.projectName}`);
+  }
   console.log('\n');
+}
+
+// Project Neme required
+if (!options.projectName) {
+  console.error("Project name required");
+  process.exit(1);
 }
 
 // Check if txt/JSON file or directory exists

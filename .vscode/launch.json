@@ -14,7 +14,8 @@
         "${workspaceFolder}/dist/**.js"
       ],
       "args": [
-        "-j", "D:\\src\\sfm-utils\\samples\\56TIT.json"
+        "-p", "slt",
+        //"-j", "C:\\src\\sfm-utils\\samples\\56TIT.json"
       ]
     },
     {
