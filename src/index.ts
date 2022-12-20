@@ -3,6 +3,7 @@
 import * as program from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as books from './books';
 import * as toolbox from './toolbox';
 const {version} = require('../package.json');
 
@@ -53,7 +54,14 @@ if (options.json && !fs.existsSync(options.json)) {
 // End of parameters
 ////////////////////////////////////////////////////////////////////
 
-let bookObj = {};
+const b = new books.Books();
+let bookObj: books.objType = {
+  "header": {
+    "projectName" : "",
+    "bookInfo" : b.getBookByCode("000")
+  },
+  "content": []
+};
 
 const filesToParse: string[] = [];
 

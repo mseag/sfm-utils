@@ -513,6 +513,21 @@ const bookInfo: bookType[] =
   }
 ];
 
+export interface unitType {
+  type: string,
+  number: number,
+  content?: any,
+  text?: string
+}
+
+export interface objType {
+  header: {
+    projectName: string,
+    bookInfo:  bookType
+  },
+  content: unitType[]
+}
+
 export class Books {
 
 /**

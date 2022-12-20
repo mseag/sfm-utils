@@ -20,21 +20,6 @@ export interface fileInfoType {
   chapterNumber: number;
 }
 
-export interface unitType {
-  type: string,
-  number: number,
-  content?: any,
-  text?: string
-}
-
-export interface objType {
-  header: {
-    projectName: string,
-    bookInfo:  books.bookType
-  },
-  content: unitType[]
-}
-
 /**
  * Extract a book name and chapter number from the filename
  * @param {string} file - Path to the Toolbox text file
@@ -66,7 +51,7 @@ export function initializeBookObj(bookName: string, projectName: string) : any {
   const bookType = b.getBookByName(bookName);
 
   // Initialize book object and content for the number of chapters
-  const bookObj : objType = {
+  const bookObj : books.objType = {
     "header": {
       "projectName" : projectName,
       "bookInfo" : bookType
@@ -108,7 +93,7 @@ export function parse(file: string, projectName: string) : any {
   }
 
   // Split each line on type and content
-  const pattern = new RegExp(/^(\\{2}[A-Za-z]+)\s(.*)$/);
+  const pattern = new RegExp(/^(\\[A-Za-z]+)\s(.*)$/);
   toolboxData.forEach(line => {
     const match = line.match(pattern);
     if (match) {
