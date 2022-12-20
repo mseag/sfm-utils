@@ -55,15 +55,17 @@ if (options.json && !fs.existsSync(options.json)) {
 
 let bookObj = {};
 
-// TODO: Handle options.directory to get list of all txt files to process and ignore certain directories
+const filesToParse: string[] = [];
 
 if (options.text) {
   // Parse a txt file into JSON Object
-  bookObj = toolbox.parse(options.text, "slt");
+  filesToParse.push(options.text);
+} else if (options.directory) {
+// TODO: Handle options.directory to get list of all txt files to process and ignore certain directories
 
-  // For testing, write out each book's JSON to file
+}
 
-} else if (options.json) {
+if (options.json) {
   // Get the book status from the JSON file
   try {
     bookObj = require(options.json);
@@ -71,6 +73,12 @@ if (options.text) {
     console.error("Invalid JSON file. Exiting")
     process.exit(1);
   }
+} else if (filesToParse.length > 0) {
+  filesToParse.forEach(file => {
+    bookObj = toolbox.parse(file, "slt");
+  });
+  // For testing, write out each book's JSON to file
+
 } else {
   console.warn("No directory or JSON file given. Exiting");
   process.exit(1)

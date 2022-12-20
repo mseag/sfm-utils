@@ -101,7 +101,7 @@ export function parse(file: string, projectName: string) : any {
   }
 
   // Split each line on type and content
-  const pattern = new RegExp(/^(\\[A-Za-z]+)\s(.)*$/);
+  const pattern = new RegExp(/^(\\\w+)\s(.*)$/);
   toolboxData.forEach(line => {
     //
     const match = line.match(pattern);
