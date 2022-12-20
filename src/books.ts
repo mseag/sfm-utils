@@ -554,23 +554,66 @@ export class Books {
     let bookName: string;
     // Override P&P typos/alternate spellings in book name
     switch(name) {
+      // OT
       case 'Dueteronomy':
         bookName = 'Deuteronomy';
         break;
-      case '1 Samual':
+      case '1Samuel':
         bookName = '1 Samuel';
         break;
-      case '2 Samual':
+      case '2Samuel':
         bookName = '2 Samuel';
+        break;
+      case '1Kings':
+        bookName = '1 Kings';
+        break;
+      case '2Kings':
+        bookName = '2 Kings';
         break;
       case 'Song of Solomon':
         bookName = 'Song of Songs';
         break;
+      case 'jonah':
+        bookName = 'Jonah';
+        break;
       case 'Zachariah':
         bookName = 'Zechariah';
         break;
+
+      // NT
+      case 'aMatthew':
+        bookName = 'Matthew';
+        break;
+      case 'aLuke':
+        bookName = 'Luke';
+        break;
       case 'I Corinthians':
-        bookName = "1 Corinthians";
+      case '1Corinthians':
+        bookName = '1 Corinthians';
+        break;
+      case '2Corinthians':
+        bookName = '2 Corinthians';
+        break;
+      case '1Thessalonians':
+        bookName = '1 Thessalonians';
+        break;
+      case '2Thessalonians':
+        bookName = '2 Thessalonians';
+        break;
+      case '1Timothy':
+        bookName = '1 Timothy';
+        break;
+      case '2Timothy':
+        bookName = '2 Timothy';
+        break;
+      case '1Peter':
+        bookName = '1 Peter';
+        break;
+      case '2Peter':
+        bookName = '2 Peter';
+        break;
+      case '1John':
+        bookName = '1 John';
         break;
       default:
         bookName = name;

@@ -131,9 +131,12 @@ if (options.json) {
     toolbox.updateObj(bookObj, file, currentChapter);
   });
   // For testing, write out each book's JSON to file
-  fs.writeFileSync('./' + bookObj.header.bookInfo.num +
-    bookObj.header.bookInfo.code + bookObj.header.projectName + '.json', JSON.stringify(bookObj, null, 2));
-  console.info('Writing out book object');
+  if (bookObj.header.bookInfo.code !== "000") {
+    const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
+    fs.writeFileSync('./' + padZero + bookObj.header.bookInfo.num +
+      bookObj.header.bookInfo.code + bookObj.header.projectName + '.json', JSON.stringify(bookObj, null, 2));
+    console.info('Writing out book object');
+  }
 
 } else {
   console.warn("No input files provided. Exiting");
@@ -142,7 +145,7 @@ if (options.json) {
 
 
 
-// Write out the JSON Objects to SFM
-if (bookObj) {
+// Write out valid JSON Objects to SFM
+if (bookObj.header.bookInfo.code !== "000") {
   sfm.convertToSFM(bookObj);
 }

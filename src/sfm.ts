@@ -53,6 +53,7 @@ export function convertToSFM(bookObj: books.objType) : any {
   const bookNum = bookObj.header.bookInfo.num;
   const bookCode = bookObj.header.bookInfo.code;
   const projectName = bookObj.header.projectName;
-  fs.writeFileSync('./' + bookNum + bookCode + projectName + '.SFM', SFMtext);
+  const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
+  fs.writeFileSync('./' + padZero + bookNum + bookCode + projectName + '.SFM', SFMtext);
 
 }

@@ -8,7 +8,10 @@ import * as books from './books';
  * List of recognized (escaped) Toolbox markers
  */
 export type markerType =
+  // These are ignored
   "\\c" |
+
+  // These are processed
   "\\tx" |
   "\\vs";
 
@@ -27,7 +30,7 @@ export interface fileInfoType {
  */
 export function getBookAndChapter(file: string) : fileInfoType {
   const filename = path.parse(file).base;
-  const pattern = /([A-Za-z]+)_(Ch)?(\d+)[_\s].*\.txt$/;
+  const pattern = /([0-9A-Za-z]+)_(Ch|ch)?(\d+)[_\s]?.*\.txt/;
   const match = filename.match(pattern);
   const obj: fileInfoType = {
     bookName: "",
@@ -106,6 +109,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
       switch (marker) {
         case '\\c' :
+          // Markers to ignore
           break;
         case '\\tx' :
           // Assume we're adding a verse
@@ -130,7 +134,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
       }
 
     } else {
-      console.warn('Unable to parse line: ' + line);
+      console.warn(`Unable to parse line: "${line}" from "${file}" - skipping...`);
     }
 
   });
