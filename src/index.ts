@@ -120,7 +120,7 @@ function processSuperDirectory(superDirectory: string){
  */
 function processDirectory(directory: string){
   const b = new books.Books();
-  const bookObj: books.objType = {
+  let bookObj: books.objType = {
     "header": {
       "projectName" : "",
       "bookInfo" : b.getBookByCode("000")
@@ -131,11 +131,18 @@ function processDirectory(directory: string){
   const filesToParse: string[] = [];
   fileAssistant.getTextFilesInside(directory, filesToParse);
   filesToParse.forEach(file => {
-    processText(file, bookObj);
+    bookObj = processText(file, bookObj);
   });
 
   // Write out valid JSON Object to SFM
   if (bookObj.header.bookInfo.code !== "000") {
+    // For testing, write out book JSON Object
+    const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
+    fs.writeFileSync('./' + padZero + bookObj.header.bookInfo.num +
+      bookObj.header.bookInfo.code + bookObj.header.projectName + '.json',
+      JSON.stringify(bookObj, null, 2));
+    console.info('Writing out book object');
+
     sfm.convertToSFM(bookObj);
   }
 }
@@ -144,12 +151,14 @@ function processDirectory(directory: string){
 /**
  * Take a text file and make a JSON book type object
  * @param {string} filepath - file path of a single text file
+ * @param {books.bookType} bookObj - the book object to modify
+ * @returns {books.bookType} bookObj - modified book object
  */
-function processText(filepath: string, bookObj: books.objType) {
+function processText(filepath: string, bookObj: books.objType): books.objType {
   const bookInfo = toolbox.getBookAndChapter(filepath);
     if (bookInfo.bookName === "Placeholder") {
       // Skip invalid files
-      return;
+      return bookObj;
     }
 
     if (bookObj.content.length == 0) {
@@ -165,10 +174,20 @@ function processText(filepath: string, bookObj: books.objType) {
 
     toolbox.updateObj(bookObj, filepath, currentChapter);
 
-    // For single file parameter, write out valid JSON Object to SFM
+    // For single file parameter, write output
     if (options.text && bookObj.header.bookInfo.code !== "000") {
+      // For testing, write out book JSON Object
+      const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
+      fs.writeFileSync('./' + padZero + bookObj.header.bookInfo.num +
+        bookObj.header.bookInfo.code + bookObj.header.projectName + '.json',
+        JSON.stringify(bookObj, null, 2));
+      console.info('Writing out book object');
+
+      //valid JSON Object to SFM
       sfm.convertToSFM(bookObj);
     }
+
+    return bookObj;
 }
 
 
