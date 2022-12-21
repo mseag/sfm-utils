@@ -139,34 +139,41 @@ function processDirectory(directory: string){
  */
 function processText(filepath: string, bookObj: books.objType): books.objType {
   const bookInfo = toolbox.getBookAndChapter(filepath);
-    if (bookInfo.bookName === "Placeholder") {
-      // Skip invalid files
-      return bookObj;
-    }
-
-    if (bookObj.content.length == 0) {
-      bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
-    }
-
-    const currentChapter = bookInfo.chapterNumber;
-    if (bookObj.content[currentChapter].type != "chapter") {
-      // Initialize current chapter
-      bookObj.content[currentChapter].type = "chapter";
-      bookObj.content[currentChapter].content = [];
-    }
-
-    toolbox.updateObj(bookObj, filepath, currentChapter);
-
-    // For single file parameter, write valid output
-    if (options.text && bookObj.header.bookInfo.code !== "000") {
-      // For testing, write out book JSON Object
-      writeJSON(bookObj);
-
-      //valid JSON Object to SFM
-      sfm.convertToSFM(bookObj);
-    }
-
+  const currentChapter = bookInfo.chapterNumber;
+  const bookType = books.getBookByName(bookInfo.bookName);
+  if (bookInfo.bookName === "Placeholder") {
+    // Skip invalid book name
+    console.warn('Skipping invalid book name');
     return bookObj;
+  } else if (currentChapter > bookType.chapters) {
+    // Skip invalid chapter number
+    console.warn('Skipping invalid chapter number ' + currentChapter + ' when ' +
+      bookObj.header.bookInfo.name + ' only has ' + bookType.chapters + ' chapters.');
+    return bookObj;
+  }
+
+  if (bookObj.content.length == 0) {
+    bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
+  }
+
+  if (bookObj.content[currentChapter].type != "chapter") {
+    // Initialize current chapter
+    bookObj.content[currentChapter].type = "chapter";
+    bookObj.content[currentChapter].content = [];
+  }
+
+  toolbox.updateObj(bookObj, filepath, currentChapter);
+
+  // For single file parameter, write valid output
+  if (options.text && bookObj.header.bookInfo.code !== "000") {
+    // For testing, write out book JSON Object
+    writeJSON(bookObj);
+
+    //valid JSON Object to SFM
+    sfm.convertToSFM(bookObj);
+  }
+
+  return bookObj;
 }
 
 

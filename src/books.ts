@@ -558,8 +558,8 @@ export function getBookByCode(bookCode: CodeType): bookType {
 /**
  * Get the book information given the book name.
  * Also handles typos / alternate spellings in book name
- * @param {string} name
- * @returns {bookType}
+ * @param {string} name of the book
+ * @returns {bookType} Information about the book
  */
 export function getBookByName(name: string): bookType {
   let bookName: string;
@@ -599,6 +599,9 @@ export function getBookByName(name: string): bookType {
     case 'aLuke':
       bookName = 'Luke';
       break;
+    case 'aActs':
+      bookName = 'Acts';
+      break;
     case 'I Corinthians':
     case '1Corinthians':
     case 'x1Corinthians':
@@ -633,7 +636,7 @@ export function getBookByName(name: string): bookType {
   }
   let book : bookType = bookInfo.find(b => b.name === bookName) as bookType;
   if (book === undefined) {
-    console.warn(`WARNING: possible typo for book name: ${name}. Returning placeholder`);
+    console.warn(`Skipping book name: ${name}. Returning placeholder`);
     book = PLACEHOLDER_BOOK;
   }
   return book;

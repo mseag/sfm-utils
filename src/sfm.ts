@@ -13,7 +13,7 @@ export function convertToSFM(bookObj: books.objType) {
   const TOC_MARKER = "\\toc ";
   const MAIN_TITLE_MARKER = "\\mt ";
   const CHAPTER_MARKER = "\\c ";
-  const SECTION_MARKER = "\\s1 ";
+  const SECTION_MARKER = "\\s"; // number gets added later
   const PARAGRAPH_MARKER = "\n\\p";
   const VERSE_MARKER = "\\v ";
   const CRLF = "\n";
@@ -37,7 +37,7 @@ export function convertToSFM(bookObj: books.objType) {
         sectionsAndVerses.forEach(function(unit) {
           switch(unit.type) {
             case "section":
-              SFMtext += SECTION_MARKER + unit.text + PARAGRAPH_MARKER + CRLF;
+              SFMtext += SECTION_MARKER + unit.number + ' ' + unit.text + PARAGRAPH_MARKER + CRLF;
               break;
             case "verse":
               SFMtext += VERSE_MARKER + unit.number + ' ' + unit.text + CRLF;

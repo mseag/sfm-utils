@@ -14,7 +14,8 @@ export type markerType =
 
   // These are ignored
   "\\c" |
-  "\\t";
+  "\\ref" |
+  "\\t" ;
 
 /**
  * Information about the Toolbox text file based on the filename
@@ -138,7 +139,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
           break;
         default:
-          console.warn('Unexpected line type:' + marker);
+          console.warn('Skipping unexpected marker:' + marker);
       }
 
     } else {
