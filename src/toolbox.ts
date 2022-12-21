@@ -136,7 +136,8 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
   // Split each line on marker and content
   const markerPattern = /(\\[A-Za-z]+)\s(.*)/;
-  let verseNum = 1;
+  let verseNum = 1; // Keep track of the current verse to write
+  let action : actionType = 'START';
   //let mostRecentTXcontent = "";
   toolboxData.forEach(line => {
     const lineMatch = line.match(markerPattern);
@@ -148,10 +149,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         "number": verseNum,
         "text": content
       };
-      const contentLength = bookObj.content[currentChapter].content.length;
-      if(verseNum==19){
-        const temp = 1;
-      }
+      let contentLength = bookObj.content[currentChapter].content.length;
 
       if (mode == 'TX_AS_VERSE') {
         // Basic processing mode
@@ -177,87 +175,108 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           default:
             console.warn('Skipping unexpected marker:' + marker);
         }
+      } else if (mode == 'VS_AS_VERSE') {
+        // Determine if any other \\vs special processing needed
+        let vs_a = false, vs_other = false, modify_verse_to_header = false;
+        if (marker == '\\vs') {
+          const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
+          const vsPatternMatch = line.match(vsPattern);
+          if(vsPatternMatch){
+            if(vsPatternMatch[1] == '(section title)') {
+              modify_verse_to_header = true;
+            } else if (vsPatternMatch[2] == 'a') {
+              vs_a = true;     // verse #a
+            } else if (vsPatternMatch[2]) {
+              vs_other = true; // verse #-other letter
+            }
+          }
+        }
+
+        // State machine to determine the next action
+        switch (action) {
+          case 'START' :
+            if (marker == '\\tx') {
+              action = 'CREATE_NEW_VERSE';
+            }
+            break;
+          case 'CREATE_NEW_VERSE' :
+            if (marker == '\\tx') {
+              action = 'APPEND_TO_VERSE';
+            } else if (modify_verse_to_header) {
+              action = 'MODIFY_VERSE_TO_SECTION';
+            } else if (vs_other) {
+              action = 'MERGE_VERSES';
+            } else if (marker == '\\vs') {
+              action = 'INCREMENT_VERSE_NUM';
+            }
+            break;
+          case 'APPEND_TO_VERSE' :
+            if (marker == '\\tx') {
+              action = 'APPEND_TO_VERSE'
+            } else if (vs_other) {
+              action = 'MERGE_VERSES';
+            } else if (vs_a) {
+              action = 'INCREMENT_VERSE_NUM';
+            } else if (marker == '\\vs') {
+              action = 'INCREMENT_VERSE_NUM';
+            }
+            break;
+          case 'INCREMENT_VERSE_NUM' :
+            if (marker == '\\tx') {
+              action = 'CREATE_NEW_VERSE';
+            }
+            break;
+          case 'MERGE_VERSES' :
+            if (marker == '\\tx') {
+              action = 'CREATE_NEW_VERSE';
+            }
+            break;
+          case 'MODIFY_VERSE_TO_SECTION' :
+            if (marker == '\\tx') {
+              action = 'CREATE_NEW_VERSE';
+            }
+            break;
+          default :
+            console.warn('Unexpected action state: ' + action);
+        }
+
+        // Process the action
+        switch(action) {
+          case 'START' :
+            console.warn('action: START unexpected');
+            break;
+          case 'CREATE_NEW_VERSE' :
+            // Create new verse and add
+            unit.type = "verse";
+            unit.number = verseNum;
+            unit.text = content;
+            bookObj.content[currentChapter].content.push(unit);
+            break;
+          case 'APPEND_TO_VERSE' :
+            if (contentLength > 0) {
+              bookObj.content[currentChapter].content[contentLength - 1].text += content;
+            } else {
+              console.warn('action: APPEND_TO_VERSE but content is empty');
+            }
+            break;
+          case 'INCREMENT_VERSE_NUM' :
+            verseNum++;
+            break;
+          case 'MERGE_VERSES' : {
+            // Complicated task of merging the previous two verses, and assigning number = verseNum-1
+            const lastVerse = bookObj.content[currentChapter].content.pop();
+            contentLength--;
+            bookObj.content[currentChapter].content[contentLength - 1].text += lastVerse.text;
+            bookObj.content[currentChapter].content[contentLength - 1].number = verseNum-1;
+            break;
+          }
+          case 'MODIFY_VERSE_TO_SECTION' :
+            // Convert previous line from "verse" to "section", number "1"
+            bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+            bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+            break;
+        }
       }
-
-      // else if (mode == 'VS_AS_VERSE') {
-
-      //   switch (marker) {
-      //     case '\\c' :
-      //       // Markers to ignore
-      //       break;
-      //     case '\\tx' :
-      //       mostRecentTXcontent = content;
-
-      //       if(mode == 'VS_AS_VERSE') {
-      //         if (contentLength > 0 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse" &&
-      //             verseNum == bookObj.content[currentChapter].content[contentLength - 1].number) {
-      //           // If previous line was also \\tx and matches verse number, append content to the last verse
-      //           bookObj.content[currentChapter].content[contentLength - 1].text += content;
-      //         } else {
-      //           // Create new verse and add
-      //           unit.type = "verse";
-      //           unit.number = verseNum;
-      //           unit.text = content;
-      //           bookObj.content[currentChapter].content.push(unit);
-      //         }
-      //       } else if (mode == 'TX_AS_VERSE') {
-      //         // Add a new verse
-      //         unit.type = "verse";
-      //         // unit.text already set
-      //         bookObj.content[currentChapter].content.push(unit);
-      //         verseNum++;
-      //       }
-      //       break;
-      //     case '\\vs' :
-      //       if (contentLength > 0) {
-      //         if (mode == 'TX_AS_VERSE'){
-      //           // Convert previous line from "verse" to "section", number "1"
-      //           bookObj.content[currentChapter].content[contentLength - 1].type = "section";
-      //           bookObj.content[currentChapter].content[contentLength - 1].number = 1;
-      //           verseNum--;
-      //         } else if (mode == 'VS_AS_VERSE') {
-      //           const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
-      //           const vsPatternMatch = line.match(vsPattern);
-      //           if(vsPatternMatch){
-      //             if(vsPatternMatch[1] == '(section title)'){
-      //               //If there shouldn't be a verse before the section header (all that's in the last unit's text is header text), change the verse to a section
-      //               if(bookObj.content[currentChapter].content[contentLength - 1].text == mostRecentTXcontent){
-      //                 bookObj.content[currentChapter].content[contentLength - 1].type = "section";
-      //                 bookObj.content[currentChapter].content[contentLength - 1].number = 1;
-      //               }
-      //               // If there are verse lines before the section header, un-append the header text from them
-      //               else if(contentLength>1 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse"){
-      //                 bookObj.content[currentChapter].content[contentLength - 1].text = bookObj.content[currentChapter].content[contentLength - 1].text.replace(mostRecentTXcontent, '');
-      //                 bookObj.content[currentChapter].content[contentLength - 1].type = "verse";
-      //                 bookObj.content[currentChapter].content[contentLength - 1].number = verseNum;
-      //                 verseNum++;
-      //                 // And push a section header unit
-      //                 const sectionHeaderUnit: books.unitType = {
-      //                   "type": "section",
-      //                   "number": 1,
-      //                   "text": mostRecentTXcontent
-      //                 };
-      //                 bookObj.content[currentChapter].content.push(sectionHeaderUnit);
-      //               }
-
-      //             } else {
-      //               verseNum = parseInt(vsPatternMatch[1]) + 1;
-      //               if(vsPatternMatch[2] && parseInt(vsPatternMatch[1]) == bookObj.content[currentChapter].content[contentLength - 1].number){
-      //                 verseNum = parseInt(vsPatternMatch[1]);
-      //                 }
-      //               }
-      //             }
-
-      //           }
-      //         } else {
-      //         console.warn('Warning, section without text');
-      //       }
-      //       break;
-
-      //     default:
-      //       console.warn('Skipping unexpected marker:' + marker);
-      //   }
-
     } else {
       console.warn(`Unable to parse line: "${line}" from "${file}" - skipping...`);
     }
