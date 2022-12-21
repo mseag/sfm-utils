@@ -14,6 +14,17 @@ type modeType =
   "VS_AS_VERSE";
 
 /**
+ * States for VS_AS_VERSE processing mode
+ */
+type actionType =
+  "START" |                   // Initial state
+  "CREATE_NEW_VERSE" |        // Create new verse and push to content[]
+  "APPEND_TO_VERSE" |         // Append to last verse
+  "INCREMENT_VERSE_NUM" |     // Increment verseNum
+  "MODIFY_VERSE_TO_SECTION" | // Change last verse type to section
+  "MERGE_VERSES";             // Merge last two verses, set number = verseNum - 1
+
+/**
  * List of recognized (escaped) Toolbox markers. We only process some of them
  */
 export type markerType =
@@ -80,7 +91,7 @@ export function initializeBookObj(bookName: string, projectName: string) : books
     "content": []
   };
 
-  // Intialize book object with padding for each chapter
+  // Initialize book object with padding for each chapter
   // index 0 is extra padding since chapters are 1-based
   for (let i = 0; i < bookType.chapters+1; i++) {
     const padding = {
@@ -123,12 +134,12 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
     return true;
   });
 
-  // Split each line on type and content
-  const pattern = /(\\[A-Za-z]+)\s(.*)/;
+  // Split each line on marker and content
+  const markerPattern = /(\\[A-Za-z]+)\s(.*)/;
   let verseNum = 1;
-  let mostRecentTXcontent = "";
+  //let mostRecentTXcontent = "";
   toolboxData.forEach(line => {
-    const lineMatch = line.match(pattern);
+    const lineMatch = line.match(markerPattern);
     if (lineMatch) {
       const marker: markerType = lineMatch[1] as markerType;
       const content: string = lineMatch[2];
@@ -142,82 +153,110 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         const temp = 1;
       }
 
-      switch (marker) {
-        case '\\c' :
-          // Markers to ignore
-          break;
-        case '\\tx' :
-          mostRecentTXcontent = content;
-
-          if(mode == 'VS_AS_VERSE') {
-            if (contentLength > 0 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse" &&
-                verseNum == bookObj.content[currentChapter].content[contentLength - 1].number) {
-              // If previous line was also \\tx and matches verse number, append content to the last verse
-              bookObj.content[currentChapter].content[contentLength - 1].text += content;
-            } else {
-              // Create new verse and add
-              unit.type = "verse";
-              unit.number = verseNum;
-              unit.text = content;
-              bookObj.content[currentChapter].content.push(unit);
-            }
-          } else if (mode == 'TX_AS_VERSE') {
+      if (mode == 'TX_AS_VERSE') {
+        // Basic processing mode
+        switch (marker) {
+          case '\\c' :
+            // Markers to ignore
+            break;
+          case '\\tx' :
             // Add a new verse
             unit.type = "verse";
             // unit.text already set
             bookObj.content[currentChapter].content.push(unit);
             verseNum++;
-          }
-          break;
-        case '\\vs' :
-          if (contentLength > 0) {
-            if (mode == 'TX_AS_VERSE'){
+            break;
+          case '\\vs' :
+            if (contentLength > 0) {
               // Convert previous line from "verse" to "section", number "1"
               bookObj.content[currentChapter].content[contentLength - 1].type = "section";
               bookObj.content[currentChapter].content[contentLength - 1].number = 1;
               verseNum--;
-            } else if (mode == 'VS_AS_VERSE') {
-              const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
-              const vsPatternMatch = line.match(vsPattern);
-              if(vsPatternMatch){
-                if(vsPatternMatch[1] == '(section title)'){
-                  //If there shouldn't be a verse before the section header (all that's in the last unit's text is header text), change the verse to a section
-                  if(bookObj.content[currentChapter].content[contentLength - 1].text == mostRecentTXcontent){
-                    bookObj.content[currentChapter].content[contentLength - 1].type = "section";
-                    bookObj.content[currentChapter].content[contentLength - 1].number = 1;
-                  }
-                  // If there are verse lines before the section header, un-append the header text from them
-                  else if(contentLength>1 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse"){
-                    bookObj.content[currentChapter].content[contentLength - 1].text = bookObj.content[currentChapter].content[contentLength - 1].text.replace(mostRecentTXcontent, '');
-                    bookObj.content[currentChapter].content[contentLength - 1].type = "verse";
-                    bookObj.content[currentChapter].content[contentLength - 1].number = verseNum;
-                    verseNum++;
-                    // And push a section header unit
-                    const sectionHeaderUnit: books.unitType = {
-                      "type": "section",
-                      "number": 1,
-                      "text": mostRecentTXcontent
-                    };
-                    bookObj.content[currentChapter].content.push(sectionHeaderUnit);
-                  }
-
-                } else {
-                  verseNum = parseInt(vsPatternMatch[1]) + 1;
-                  if(vsPatternMatch[2] && parseInt(vsPatternMatch[1]) == bookObj.content[currentChapter].content[contentLength - 1].number){
-                    verseNum = parseInt(vsPatternMatch[1]);
-                    }
-                  }
-                }
-
-              }
-            } else {
-            console.warn('Warning, section without text');
-          }
-          break;
-
-        default:
-          console.warn('Skipping unexpected marker:' + marker);
+            }
+            break;
+          default:
+            console.warn('Skipping unexpected marker:' + marker);
+        }
       }
+
+      // else if (mode == 'VS_AS_VERSE') {
+
+      //   switch (marker) {
+      //     case '\\c' :
+      //       // Markers to ignore
+      //       break;
+      //     case '\\tx' :
+      //       mostRecentTXcontent = content;
+
+      //       if(mode == 'VS_AS_VERSE') {
+      //         if (contentLength > 0 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse" &&
+      //             verseNum == bookObj.content[currentChapter].content[contentLength - 1].number) {
+      //           // If previous line was also \\tx and matches verse number, append content to the last verse
+      //           bookObj.content[currentChapter].content[contentLength - 1].text += content;
+      //         } else {
+      //           // Create new verse and add
+      //           unit.type = "verse";
+      //           unit.number = verseNum;
+      //           unit.text = content;
+      //           bookObj.content[currentChapter].content.push(unit);
+      //         }
+      //       } else if (mode == 'TX_AS_VERSE') {
+      //         // Add a new verse
+      //         unit.type = "verse";
+      //         // unit.text already set
+      //         bookObj.content[currentChapter].content.push(unit);
+      //         verseNum++;
+      //       }
+      //       break;
+      //     case '\\vs' :
+      //       if (contentLength > 0) {
+      //         if (mode == 'TX_AS_VERSE'){
+      //           // Convert previous line from "verse" to "section", number "1"
+      //           bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+      //           bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+      //           verseNum--;
+      //         } else if (mode == 'VS_AS_VERSE') {
+      //           const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
+      //           const vsPatternMatch = line.match(vsPattern);
+      //           if(vsPatternMatch){
+      //             if(vsPatternMatch[1] == '(section title)'){
+      //               //If there shouldn't be a verse before the section header (all that's in the last unit's text is header text), change the verse to a section
+      //               if(bookObj.content[currentChapter].content[contentLength - 1].text == mostRecentTXcontent){
+      //                 bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+      //                 bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+      //               }
+      //               // If there are verse lines before the section header, un-append the header text from them
+      //               else if(contentLength>1 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse"){
+      //                 bookObj.content[currentChapter].content[contentLength - 1].text = bookObj.content[currentChapter].content[contentLength - 1].text.replace(mostRecentTXcontent, '');
+      //                 bookObj.content[currentChapter].content[contentLength - 1].type = "verse";
+      //                 bookObj.content[currentChapter].content[contentLength - 1].number = verseNum;
+      //                 verseNum++;
+      //                 // And push a section header unit
+      //                 const sectionHeaderUnit: books.unitType = {
+      //                   "type": "section",
+      //                   "number": 1,
+      //                   "text": mostRecentTXcontent
+      //                 };
+      //                 bookObj.content[currentChapter].content.push(sectionHeaderUnit);
+      //               }
+
+      //             } else {
+      //               verseNum = parseInt(vsPatternMatch[1]) + 1;
+      //               if(vsPatternMatch[2] && parseInt(vsPatternMatch[1]) == bookObj.content[currentChapter].content[contentLength - 1].number){
+      //                 verseNum = parseInt(vsPatternMatch[1]);
+      //                 }
+      //               }
+      //             }
+
+      //           }
+      //         } else {
+      //         console.warn('Warning, section without text');
+      //       }
+      //       break;
+
+      //     default:
+      //       console.warn('Skipping unexpected marker:' + marker);
+      //   }
 
     } else {
       console.warn(`Unable to parse line: "${line}" from "${file}" - skipping...`);
