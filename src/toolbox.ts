@@ -5,15 +5,16 @@ import * as path from 'path'
 import * as books from './books';
 
 /**
- * List of recognized (escaped) Toolbox markers
+ * List of recognized (escaped) Toolbox markers. We only process some of them
  */
 export type markerType =
-  // These are ignored
-  "\\c" |
-
   // These are processed
   "\\tx" |
-  "\\vs";
+  "\\vs" |
+
+  // These are ignored
+  "\\c" |
+  "\\t";
 
 /**
  * Information about the Toolbox text file based on the filename
@@ -38,8 +39,7 @@ export function getBookAndChapter(file: string) : fileInfoType {
   };
   if (match) {
     // Fix any typo in book name
-    const b = new books.Books();
-    const bookName = b.getBookByName(match[1]).name;
+    const bookName = books.getBookByName(match[1]).name;
     if (bookName !== "Placeholder") {
       obj.bookName = bookName;
       obj.chapterNumber = parseInt(match[3]);
@@ -59,8 +59,7 @@ export function getBookAndChapter(file: string) : fileInfoType {
  *         with padding for the expected number of chapters
  */
 export function initializeBookObj(bookName: string, projectName: string) : books.objType {
-  const b = new books.Books();
-  const bookType = b.getBookByName(bookName);
+  const bookType = books.getBookByName(bookName);
 
   // Initialize book object and content for the number of chapters
   const bookObj : books.objType = {

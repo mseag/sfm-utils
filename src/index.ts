@@ -79,14 +79,7 @@ if (options.json) {
   processJSON(options.json);
 } else if (options.text) {
   // Parse a txt file into a JSON object
-  const b = new books.Books();
-  const bookObj: books.objType = {
-    "header": {
-      "projectName" : "",
-      "bookInfo" : b.getBookByCode("000")
-    },
-    "content": []
-  };
+  const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   processText(options.text, bookObj);
 } else if (options.directory) {
   // Convert the text files in a directory into an SFM book file
@@ -119,14 +112,7 @@ function processSuperDirectory(superDirectory: string){
  * @param {string} directory - path to directory containing text files
  */
 function processDirectory(directory: string){
-  const b = new books.Books();
-  let bookObj: books.objType = {
-    "header": {
-      "projectName" : "",
-      "bookInfo" : b.getBookByCode("000")
-    },
-    "content": []
-  };
+  let bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   // Get all the text files in the directory and then process them
   const filesToParse: string[] = [];
   fileAssistant.getTextFilesInside(directory, filesToParse);
@@ -189,14 +175,7 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
  * @param {string} filepath - file path of a single JSON file
  */
 function processJSON(filepath: string){
-  const b = new books.Books();
-  let bookObj: books.objType = {
-    "header": {
-      "projectName" : "",
-      "bookInfo" : b.getBookByCode("000")
-    },
-    "content": []
-  };
+  let bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   try {
     bookObj = require(filepath);
   } catch (e) {
