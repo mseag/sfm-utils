@@ -5,6 +5,15 @@ import * as path from 'path'
 import * as books from './books';
 
 /**
+ * Enum to know what mode to parse the Toolbox file
+ * TX_AS_VERSE - each \tx is a separate verse
+ * VS_AS_VERSE - depend on \vs to mark verse numbers
+ */
+type modeType =
+  "TX_AS_VERSE" |
+  "VS_AS_VERSE";
+
+/**
  * List of recognized (escaped) Toolbox markers. We only process some of them
  */
 export type markerType =
@@ -100,6 +109,19 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
     // If last line empty, remove it
     toolboxData.pop();
   }
+
+  // Determine the mode of how to process the file
+  let mode: modeType = 'TX_AS_VERSE';
+  const modePattern = /\\vs\s+\d+/;
+  toolboxData.every(line => {
+    if (line.match(modePattern)) {
+      // Change mode and break out
+      mode = 'VS_AS_VERSE';
+      return false;
+    }
+    // Continue the very() loop
+    return true;
+  });
 
   // Split each line on type and content
   const pattern = /(\\[A-Za-z]+)\s(.*)/;
