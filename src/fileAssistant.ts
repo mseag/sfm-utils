@@ -1,7 +1,7 @@
+// Copyright 2022 SIL International
+// Utilites for handling file paths
 import * as fs from 'fs';
 import * as path from 'path';
-import * as books from './books';
-
 
 /**
  * Recursively push to an array all the txt file paths from inside a given directory
@@ -13,8 +13,7 @@ export function getTextFilesInside(directory: string, fileArray: string[]){
     const absolutePath = path.join(directory, item);
     if (fs.statSync(absolutePath).isDirectory()){
       return getTextFilesInside(absolutePath, fileArray);
-    }
-    else{
+    } else{
       if(item.substring(item.lastIndexOf('.')+1, item.length) === 'txt'){
         fileArray.push(absolutePath);
       }
@@ -22,7 +21,6 @@ export function getTextFilesInside(directory: string, fileArray: string[]){
     }
   });
 }
-
 
 /**
  * Check the first level of a directory to find book directories
@@ -36,5 +34,3 @@ export function getBookDirectories(superDirectory: string, bookDirectoryArray: s
     }
   })
 }
-
-

@@ -564,7 +564,7 @@ export function getBookByCode(bookCode: CodeType): bookType {
 export function getBookByName(name: string): bookType {
   let bookName: string;
   // Override typos/alternate spellings in book name
-  // TODO: are xNames to be ignored?
+  // TODO: are aNames or xNames to be ignored?
   switch(name) {
     // OT
     case 'Dueteronomy':

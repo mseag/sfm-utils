@@ -1,3 +1,5 @@
+// Copyright 2022 SIL International
+// Utilities for converting a JSON file to USFM
 import * as books from './books';
 import * as fs from 'fs';
 

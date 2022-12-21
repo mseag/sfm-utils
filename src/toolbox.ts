@@ -148,4 +148,3 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
   });
 }
-
