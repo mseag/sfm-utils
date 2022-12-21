@@ -127,10 +127,10 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
   const pattern = /(\\[A-Za-z]+)\s(.*)/;
   let verseNum = 1;
   toolboxData.forEach(line => {
-    const match = line.match(pattern);
-    if (match) {
-      const marker: markerType = match[1] as markerType;
-      const content: string = match[2];
+    const lineMatch = line.match(pattern);
+    if (lineMatch) {
+      const marker: markerType = lineMatch[1] as markerType;
+      const content: string = lineMatch[2];
       const unit: books.unitType = {
         "type": "padding",
         "number": verseNum,
@@ -143,23 +143,74 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           // Markers to ignore
           break;
         case '\\tx' :
-          // Assume we're adding a verse
-          unit.type = "verse";
-          unit.text
-          bookObj.content[currentChapter].content.push(unit);
-          verseNum++;
+          if(mode == 'VS_AS_VERSE') {
+            if (contentLength > 0 && bookObj.content[currentChapter].content[contentLength - 1].type == "verse" &&
+                verseNum == bookObj.content[currentChapter].content[contentLength - 1].number) {
+              // If previous line was also \\tx and matches verse number, append content to the last verse
+              bookObj.content[currentChapter].content[contentLength - 1].text += content;
+            } else {
+              // Create new verse and add
+              unit.type = "verse";
+              unit.number = verseNum;
+              unit.text = content;
+              bookObj.content[currentChapter].content.push(unit);
+            }
+          } else if (mode == 'TX_AS_VERSE') {
+            // Add a new verse
+            unit.type = "verse";
+            // unit.text already set
+            bookObj.content[currentChapter].content.push(unit);
+            verseNum++;
+          }
           break;
         case '\\vs' :
-          // Convert previous line from "verse" to "section", number "1"
           if (contentLength > 0) {
-            bookObj.content[currentChapter].content[contentLength - 1].type = "section";
-            bookObj.content[currentChapter].content[contentLength - 1].number = 1;
-            verseNum--;
+            if (mode == 'TX_AS_VERSE'){
+              // Convert previous line from "verse" to "section", number "1"
+              bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+              bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+              verseNum--;
+            } else if (mode == 'VS_AS_VERSE') {
+              const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
+              const vsPatternMatch = line.match(vsPattern);
+              if(vsPatternMatch){
+                if(vsPatternMatch[1] == '(section title)'){
+                  // Convert previous line from "verse" to "section", number "1"
+                  bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+                  bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+                } else {
+                  verseNum = parseInt(vsPatternMatch[1]) + 1;
+                }
+                //else {
+                //   // Add/updatle verse
+                //   if(vsPatternMatch[2]){
+                //     // This verse has parts a,b, etc.
+                //     // If previous vs had the same number, add on to the previous vs
+                //     if(bookObj.content[currentChapter].content[contentLength-1].type == 'verse' &&
+                //         vsPatternMatch[1] == bookObj.content[currentChapter].content[contentLength-1].number){
+                //         bookObj.content[currentChapter].content[contentLength - 1].text += content;
+                //     } else{ // This is the "a" part e.g. vs 8a
+                //       // Add a verse
+                //       unit.type = "verse";
+                //       unit.text
+                //       bookObj.content[currentChapter].content.push(unit);
+                //       //verseNum++;
+                //     }
+                //   } else {
+                //     // Add a versell
+                //     unit.type = "verse";
+                //     unit.text
+                //     bookObj.content[currentChapter].content.push(unit);
+                //     verseNum = parseInt(vsPatternMatch[1]) + 1;
+                //   }
+                // }
+              }
+            }
           } else {
             console.warn('Warning, section without text');
           }
-
           break;
+
         default:
           console.warn('Skipping unexpected marker:' + marker);
       }
