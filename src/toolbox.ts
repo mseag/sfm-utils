@@ -141,7 +141,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
   const markerPattern = /(\\[A-Za-z]+)\s(.*)/;
   let verseNum = 1; // Keep track of the current verse to write
   let action : actionType = 'START';
-  //let mostRecentTXcontent = "";
+  let section_title_written = false;
   toolboxData.forEach(line => {
     const lineMatch = line.match(markerPattern);
     if (lineMatch) {
@@ -271,9 +271,12 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
             break;
           }
           case 'MODIFY_VERSE_TO_SECTION' :
-            // Convert previous line from "verse" to "section", number "1"
+            // Convert previous line from "verse" to "section".
+            // Use section number 1 the first time section is written for the chapter
             bookObj.content[currentChapter].content[contentLength - 1].type = "section";
-            bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+            bookObj.content[currentChapter].content[contentLength - 1].number =
+              (section_title_written) ? 2 : 1;
+            section_title_written = true;
             break;
         }
       }
