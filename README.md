@@ -1,43 +1,32 @@
 
 # sfm-utils
 Utilities to parse text files (e.g. from Toolbox) and migrate SFM markers into a format suitable for Paratext.
+Each book input is written to individual .sfm files.
+
+Assumptions:
+* Each text file is for a single chapter of a book
+* Each directory of files is for a single book
+* Text filenames consist of a bookname separated by space/underscore with the chapter number (e.g. Judges_19...txt)
 
 ## Usage
 Note for developers: Replace `sfm-utils.exe` references with `node dist/index.js`.
 
------
-
-### Convert a single text file
-
 Command-line
 ```bash
-sfm-utils.exe
-    -t [path to txt file]
+Usage: sfm-utils.exe -p p_arg [-t t_arg | -d d_arg | -j j_arg | -s s_arg]
 ```
 
-### Convert all the text files in a directory
-
-Command-line
+Parameters
 ```bash
-sfm-utils.exe
-    -d [path to folders of txt files]
+    Required
+    -p [Paratext project name (can be 3-character abbreviation)]
+
+    Optional - one of:
+    -t [A single Toolbox text file (one chapter of a book)]
+    -d [Directory of Toolbox text files for a single book (one chapter per file)]
+    -j [JSON file representing a single book - used for testing conversion to SFM]
+    -s [Directory of directories (each subdirectory is a separate book)]
 ```
-
-### JSON Book file
-The JSON book file has a name
-
-### Use a JSON status file for testing
-
-Command-line:
-```bash
-sfm-utils.exe
-    -j [path to JSON status file] 
-```
-
-This reads in the JSON file and writes out the corresponding .SFM file for the book
-
------
-
 
 ### Help
 Obtaining the sfm-utils version:

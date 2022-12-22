@@ -35,9 +35,12 @@ export interface bookType {
   verses: number;   // Total number of verses in the book
 }
 
-const bookInfo: bookType[] =
-[
-  {
+//#region bookInfo: bookType[]
+/**
+ * Array of bookType containing information about each book
+*/
+export const bookInfo: bookType[] = [
+{
     // Just a placeholder. Not a valid book
     code: "000",
     name: "Placeholder",
@@ -512,68 +515,144 @@ const bookInfo: bookType[] =
     verses: 404
   }
 ];
+//#endregion
 
-export class Books {
+export interface unitType {
+  type: string,
+  number: number,
+  content?: any,
+  text?: string
+}
+
+export interface objType {
+  header: {
+    projectName: string,
+    bookInfo:  bookType
+  },
+  content: unitType[]
+}
+
+export const PLACEHOLDER_BOOK: bookType = bookInfo[0];
+export const PLACEHOLDER_BOOK_OBJ: objType = {
+  "header": {
+    "projectName" : "",
+    "bookInfo" : PLACEHOLDER_BOOK
+  },
+  "content": []
+}
 
 /**
    * Get the book information given the 3-character book code
    * @param {CodeType} bookCode
    * @returns {bookType}
    */
-  public getBookByCode(bookCode: CodeType): bookType {
-    const book : bookType = bookInfo.find(b => b.code === bookCode) as bookType;
-    if (book === undefined) {
-      console.error(`getBookByCode() failed for book code: ${bookCode}`);
-      process.exit(1);
-    }
-    return book;
+export function getBookByCode(bookCode: CodeType): bookType {
+  const book : bookType = bookInfo.find(b => b.code === bookCode) as bookType;
+  if (book === undefined) {
+    console.error(`getBookByCode() failed for book code: ${bookCode}`);
+    process.exit(1);
   }
-
-  /**
-   * Get the book information given the book name.
-   * Also handles P&P typos / alternate spellings in book name
-   * @param {string} name
-   * @returns {bookType}
-   */
-  public getBookByName(name: string): bookType {
-    let bookName: string;
-    // Override P&P typos/alternate spellings in book name
-    switch(name) {
-      case 'Dueteronomy':
-        bookName = 'Deuteronomy';
-        break;
-      case 'Song of Solomon':
-        bookName = 'Song of Songs';
-        break;
-      case 'Zachariah':
-        bookName = 'Zechariah';
-        break;
-      case 'I Corinthians':
-        bookName = "1 Corinthians";
-        break;
-      default:
-        bookName = name;
-    }
-    const book : bookType = bookInfo.find(b => b.name === bookName) as bookType;
-    if (book === undefined) {
-      console.error(`Spreadsheet may have a typo for book name: ${name}. Exiting`);
-      process.exit(1);
-    }
-    return book;
-  }
-
-  /**
-   * Get the book information given the book number.
-   * If an invalid book number given, return the placeholder
-   * @param {number} bookNumber
-   * @returns {bookType}
-   */
-  public getBookByNumber(bookNumber: number) : bookType {
-    if (bookNumber < 1 || bookNumber > 66) {
-      console.error(`getBookByNumber failed with book number: ${bookNumber}`);
-      process.exit(1);
-    }
-
-    return bookInfo[bookNumber];
-  }
+  return book;
 }
+
+/**
+ * Get the book information given the book name.
+ * Also handles typos / alternate spellings in book name
+ * @param {string} name of the book
+ * @returns {bookType} Information about the book
+ */
+export function getBookByName(name: string): bookType {
+  let bookName: string;
+  // Override typos/alternate spellings in book name
+  // TODO: are aNames or xNames to be ignored?
+  switch(name) {
+    // OT
+    case 'Dueteronomy':
+      bookName = 'Deuteronomy';
+      break;
+    case '1Samuel':
+      bookName = '1 Samuel';
+      break;
+    case '2Samuel':
+      bookName = '2 Samuel';
+      break;
+    case '1Kings':
+      bookName = '1 Kings';
+      break;
+    case '2Kings':
+      bookName = '2 Kings';
+      break;
+    case 'Song of Solomon':
+      bookName = 'Song of Songs';
+      break;
+    case 'jonah':
+      bookName = 'Jonah';
+      break;
+    case 'Zachariah':
+      bookName = 'Zechariah';
+      break;
+
+    // NT
+    case 'aMatthew':
+      bookName = 'Matthew';
+      break;
+    case 'aLuke':
+      bookName = 'Luke';
+      break;
+    case 'aActs':
+      bookName = 'Acts';
+      break;
+    case 'I Corinthians':
+    case '1Corinthians':
+    case 'x1Corinthians':
+      bookName = "1 Corinthians";
+      break;
+    case '2Corinthians':
+      bookName = '2 Corinthians';
+      break;
+    case '1Thessalonians':
+      bookName = '1 Thessalonians';
+      break;
+    case '2Thessalonians':
+      bookName = '2 Thessalonians';
+      break;
+    case '1Timothy':
+      bookName = '1 Timothy';
+      break;
+    case '2Timothy':
+      bookName = '2 Timothy';
+      break;
+    case '1Peter':
+      bookName = '1 Peter';
+      break;
+    case '2Peter':
+      bookName = '2 Peter';
+      break;
+    case '1John':
+      bookName = '1 John';
+      break;
+    default:
+      bookName = name;
+  }
+  let book : bookType = bookInfo.find(b => b.name === bookName) as bookType;
+  if (book === undefined) {
+    console.warn(`Skipping book name: ${name}. Returning placeholder`);
+    book = PLACEHOLDER_BOOK;
+  }
+  return book;
+}
+
+/**
+ * Get the book information given the book number (between 1 and 66 inclusive).
+ * @param {number} bookNumber
+ * @returns {bookType}
+ */
+export function getBookByNumber(bookNumber: number) : bookType {
+  if (bookNumber < 1 || bookNumber > 66) {
+    console.error(`getBookByNumber failed with book number: ${bookNumber}`);
+    process.exit(1);
+  }
+
+  return bookInfo[bookNumber];
+}
+
