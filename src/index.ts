@@ -71,7 +71,7 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 }
 
 // Validate one of the optional parameters is given
-if (!options.text && !options.directories && !options.json && !options.superDirectory) {
+if (!options.text && !options.directory && !options.json && !options.superDirectory) {
   console.error("Need to pass another optional parameter [-t -d -j or -s]");
   process.exit(1);
 }

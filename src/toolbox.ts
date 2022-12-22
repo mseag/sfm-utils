@@ -115,7 +115,7 @@ export function initializeBookObj(bookName: string, projectName: string) : books
  * @param {number} currentChapter - Book chapter to modify
  */
 export function updateObj(bookObj: books.objType, file: string, currentChapter: number) {
-  // Read in Toolbox file and strip out empty lines (assuming Windows line-endings)
+  // Read in Toolbox file and strip out empty lines
   let toolboxFile = fs.readFileSync(file, 'utf-8');
   toolboxFile = toolboxFile.replace(/(\r\n?){2,}/g, '\r\n');
   const toolboxData = toolboxFile.split(/\r\n?/);
@@ -247,7 +247,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         // Process the action
         switch(action) {
           case 'START' :
-            console.warn('action: START unexpected');
+            console.warn(`action: START unexpected while parsing "${file}"`);
             break;
           case 'CREATE_NEW_VERSE' :
             // Create new verse and add
