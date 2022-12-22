@@ -117,7 +117,7 @@ export function initializeBookObj(bookName: string, projectName: string) : books
 export function updateObj(bookObj: books.objType, file: string, currentChapter: number) {
   // Read in Toolbox file and strip out empty lines (assuming Windows line-endings)
   let toolboxFile = fs.readFileSync(file, 'utf-8');
-  toolboxFile = toolboxFile.replace(/(\r\n){2,}/g, '\r\n');
+  toolboxFile = toolboxFile.replace(/(\r\n?){2,}/g, '\r\n');
   const toolboxData = toolboxFile.split(/\r\n?/);
   if (toolboxData[toolboxData.length - 1] == '') {
     // If last line empty, remove it
@@ -179,6 +179,10 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
             console.warn('Skipping unexpected marker:' + marker);
         }
       } else if (mode == 'VS_AS_VERSE') {
+        if (marker != "\\tx" && marker != "\\vs") {
+          // Skip all other markers for now
+          return;
+        }
         // Determine if any other \\vs special processing needed
         let vs_other = false, vs_section_header = false;
         if (marker == '\\vs') {
