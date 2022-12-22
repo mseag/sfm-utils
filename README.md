@@ -4,7 +4,6 @@ Utilities to parse text files (e.g. from Toolbox) and migrate SFM markers into a
 Each book input is written to individual .sfm files.
 
 Assumptions:
-* Toolbox text files contain Windows line-endings
 * Each text file is for a single chapter of a book
 * Each directory of files is for a single book
 * Text filenames consist of a bookname separated by space/underscore with the chapter number (e.g. Judges_19...txt)
