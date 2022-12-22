@@ -118,7 +118,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
   // Read in Toolbox file and strip out empty lines (assuming Windows line-endings)
   let toolboxFile = fs.readFileSync(file, 'utf-8');
   toolboxFile = toolboxFile.replace(/(\r\n){2,}/g, '\r\n');
-  const toolboxData = toolboxFile.split(/\r?\n/);
+  const toolboxData = toolboxFile.split(/\r\n?/);
   if (toolboxData[toolboxData.length - 1] == '') {
     // If last line empty, remove it
     toolboxData.pop();
