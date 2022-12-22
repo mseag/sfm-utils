@@ -25,7 +25,7 @@ program
 
 // Debugging parameters
 const options = program.opts();
-const debugMode = true;
+const debugMode = false;
 if (debugMode) {
   console.log('Parameters:');
   if (options.text) {
