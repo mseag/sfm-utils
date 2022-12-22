@@ -6,8 +6,10 @@ import * as books from './books';
 
 /**
  * Enum to know what mode to parse the Toolbox file
- * TX_AS_VERSE - each \tx is a separate verse
- * VS_AS_VERSE - depend on \vs to mark verse numbers
+ * TX_AS_VERSE - Each `\tx` marker creates a new verse,
+ *               `\vs` is only used for section header
+ * VS_AS_VERSE - `\vs` marks verse numbers along with section headers.
+ *               Uses the state machine (actions)
  */
 type modeType =
   "TX_AS_VERSE" |
@@ -18,14 +20,15 @@ type modeType =
  */
 type actionType =
   "START" |                   // Initial state
-  "CREATE_NEW_VERSE" |        // Create new verse and push to content[]
-  "APPEND_TO_VERSE" |         // Append to last verse
-  "INCREMENT_VERSE_NUM" |     // Increment verseNum
-  "MODIFY_VERSE_TO_SECTION" | // Change last verse type to section
-  "MERGE_VERSES";             // Merge last two verses, set number = verseNum - 1
+  "CREATE_NEW_VERSE" |        // Create new verse entry and push to content[]
+  "APPEND_TO_VERSE" |         // Append current content to last verse
+  "INCREMENT_VERSE_NUM" |     // Increment verseNum (current verse counter)
+  "MODIFY_VERSE_TO_SECTION" | // Change last type from verse to section section
+  "MERGE_VERSES";             // Merge the previous two verses, set number = verseNum - 1
+                              // This handles \vs 13b, \vs 13c, etc.
 
 /**
- * List of recognized (escaped) Toolbox markers. We only process some of them
+ * List of recognized (escaped) Toolbox markers. We currently only process some of them
  */
 export type markerType =
   // These are processed
@@ -177,22 +180,21 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         }
       } else if (mode == 'VS_AS_VERSE') {
         // Determine if any other \\vs special processing needed
-        let vs_a = false, vs_other = false, modify_verse_to_header = false;
+        let vs_other = false, vs_section_header = false;
         if (marker == '\\vs') {
           const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
           const vsPatternMatch = line.match(vsPattern);
           if(vsPatternMatch){
             if(vsPatternMatch[1] == '(section title)') {
-              modify_verse_to_header = true;
-            } else if (vsPatternMatch[2] == 'a') {
-              vs_a = true;     // verse #a
-            } else if (vsPatternMatch[2]) {
-              vs_other = true; // verse #-other letter
+              vs_section_header = true;
+            } else if (vsPatternMatch[2] && vsPatternMatch[2] != 'a') {
+              vs_other = true; // verse #-other letter besides "a"
             }
           }
         }
 
-        // State machine to determine the next action
+        // State machine to determine the next action.
+        // See ../design/README.md for diagram
         switch (action) {
           case 'START' :
             if (marker == '\\tx') {
@@ -202,7 +204,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           case 'CREATE_NEW_VERSE' :
             if (marker == '\\tx') {
               action = 'APPEND_TO_VERSE';
-            } else if (modify_verse_to_header) {
+            } else if (vs_section_header) {
               action = 'MODIFY_VERSE_TO_SECTION';
             } else if (vs_other) {
               action = 'MERGE_VERSES';
@@ -215,8 +217,6 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
               action = 'APPEND_TO_VERSE'
             } else if (vs_other) {
               action = 'MERGE_VERSES';
-            } else if (vs_a) {
-              action = 'INCREMENT_VERSE_NUM';
             } else if (marker == '\\vs') {
               action = 'INCREMENT_VERSE_NUM';
             }
