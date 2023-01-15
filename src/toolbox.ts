@@ -97,7 +97,7 @@ export function initializeBookObj(bookName: string, projectName: string) : books
   // Initialize book object with padding for each chapter
   // index 0 is extra padding since chapters are 1-based
   for (let i = 0; i < bookType.chapters+1; i++) {
-    const padding = {
+    const padding : books.unitType = {
       "type": "padding",
       "number": i
     };
@@ -289,4 +289,10 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
     }
 
   });
+  // Sanity check on verse numbers for the current chapter
+  if (bookObj.header.bookInfo.versesInChapter &&
+      verseNum-1 > bookObj.header.bookInfo.versesInChapter[currentChapter]) {
+    console.warn(`${bookObj.header.bookInfo.name} ch ${currentChapter} has ` +
+      `${verseNum-1} verses, should be ${bookObj.header.bookInfo.versesInChapter[currentChapter]}.`);
+  }
 }
