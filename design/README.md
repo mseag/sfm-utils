@@ -21,7 +21,7 @@ type actionType =
 ```
 
 If the marker is `\vs`, theres 3 additional booleans to determine special cases:
-* `vs_verse_bridge` - The `vs` marks a verse bridge (x-y) or [x-y]. This does special handling for verseNum (current verse counter)
+* `vs_verse_bridge` - The `vs` marks a verse bridge (x-y) or [x-y]. It does special handling for verseNum (current verse counter), since it marks text that spans multiple verses.
 * `vs_other` - The `\vs` marks a verse #-other letter besides "a"
 * `vs_section_header` - The `\vs` marks a section header (section title)
     Variations of section header include:
