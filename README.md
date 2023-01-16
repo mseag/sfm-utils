@@ -102,5 +102,5 @@ npm run test
 -------------
 
 ## License
-Copyright (c) 2022 SIL International. All rights reserved.
+Copyright (c) 2022-2023 SIL International. All rights reserved.
 Licensed under the [MIT license](LICENSE).
