@@ -32,7 +32,7 @@ export interface bookType {
   name: string;     // Book name
   num: number;      // Book number
   chapters: number; // Total number of chapters in the book
-  versesInChapter: number[]; // Total number of verses per chapter (placeholder at 0)
+  versesInChapter: number[]; // Number of verses in each chapter (placeholder at 0)
   verses: number;   // Total number of verses in the book
 }
 
