@@ -60,7 +60,7 @@ export const bookInfo: bookType[] = [
     versesInChapter: [0, 31, 25, 24, 26, 32, 22, 24, 22, 29, 32,
                          32, 20, 18, 24, 21, 16, 27, 33, 38, 18,
                          34, 24, 20, 67, 34, 35, 46, 22, 35, 43,
-                         54, 33, 20, 31, 29, 43, 36, 30, 23, 23,
+                         55, 32, 20, 31, 29, 43, 36, 30, 23, 23,
                          57, 38, 34, 34, 28, 34, 31, 22, 33, 26],
     verses: 1533
   },
@@ -80,7 +80,7 @@ export const bookInfo: bookType[] = [
     name: "Leviticus",
     num: 3,
     chapters: 27,
-    versesInChapter: [0, 17, 16, 17, 35, 26, 23, 38, 36, 24, 20,
+    versesInChapter: [0, 17, 16, 17, 35, 19, 30, 38, 36, 24, 20,
                          47,  8, 59, 57, 33, 34, 16, 30, 37, 27,
                          24, 33, 44, 23, 55, 46, 34],
     verses: 859
@@ -91,8 +91,8 @@ export const bookInfo: bookType[] = [
     num: 4,
     chapters: 36,
     versesInChapter: [0, 54, 34, 51, 49, 31, 27, 89, 26, 23, 36,
-                         35, 16, 33, 45, 41, 35, 28, 32, 22, 29,
-                         35, 41, 30, 25, 18, 65, 23, 31, 39, 17,
+                         35, 16, 33, 45, 41, 50, 13, 32, 22, 29,
+                         35, 41, 30, 25, 18, 65, 23, 31, 40, 16,
                          54, 42, 56, 29, 34, 13],
     verses: 1288
   },
@@ -102,8 +102,8 @@ export const bookInfo: bookType[] = [
     num: 5,
     chapters: 34,
     versesInChapter: [0, 46, 37, 29, 49, 33, 25, 26, 20, 29, 22,
-                         32, 31, 19, 29, 23, 22, 20, 22, 21, 20,
-                         23, 29, 26, 22, 19, 19, 26, 69, 28, 20,
+                         32, 32, 18, 29, 23, 22, 20, 22, 21, 20,
+                         23, 30, 25, 22, 19, 19, 26, 68, 29, 20,
                          30, 52, 29, 12],
     verses: 959
   },
@@ -276,7 +276,7 @@ export const bookInfo: bookType[] = [
     name: "Ecclesiastes",
     num: 21,
     chapters: 12,
-    versesInChapter: [0, 18, 26, 22, 17, 19, 12, 29, 17, 18, 20,
+    versesInChapter: [0, 18, 26, 22, 16, 20, 12, 29, 17, 18, 20,
                          10, 14],
     verses: 222
   },
@@ -285,7 +285,7 @@ export const bookInfo: bookType[] = [
     name: "Song of Songs",
     num: 22,
     chapters: 8,
-    versesInChapter: [0, 17, 17, 11, 16, 16, 12, 14, 14],
+    versesInChapter: [0, 17, 17, 11, 16, 16, 13, 13, 14],
     verses: 117
   },
   {
@@ -307,7 +307,7 @@ export const bookInfo: bookType[] = [
     name: "Jeremiah",
     num: 24,
     chapters: 52,
-    versesInChapter: [0, 19, 37, 25, 31, 31, 30, 34, 23, 25, 25,
+    versesInChapter: [0, 19, 37, 25, 31, 31, 30, 34, 22, 26, 25,
                          23, 17, 27, 22, 21, 21, 27, 23, 15, 18,
                          14, 30, 40, 10, 38, 24, 22, 17, 32, 24,
                          40, 44, 26, 22, 19, 32, 21, 28, 18, 16,
@@ -329,8 +329,8 @@ export const bookInfo: bookType[] = [
     num: 26,
     chapters: 48,
     versesInChapter: [0, 28, 10, 27, 17, 17, 14, 27, 18, 11, 22,
-                         25, 28, 23, 23,  8, 63, 24, 32, 14, 44,
-                         37, 31, 49, 27, 17, 21, 36, 26, 21, 26,
+                         25, 28, 23, 23,  8, 63, 24, 32, 14, 49,
+                         32, 31, 49, 27, 17, 21, 36, 26, 21, 26,
                          18, 32, 33, 31, 15, 38, 28, 23, 29, 49,
                          26, 20, 27, 31, 25, 24, 23, 35],
     verses: 1273
@@ -349,8 +349,8 @@ export const bookInfo: bookType[] = [
     name: "Hosea",
     num: 28,
     chapters: 14,
-    versesInChapter: [0,  9, 25,  5, 19, 15, 11, 16, 14, 17, 15,
-                         11, 15, 15, 10],
+    versesInChapter: [0, 11, 23,  5, 19, 15, 11, 16, 14, 17, 15,
+                         12, 14, 16,  9],
     verses: 197
   },
   {
@@ -390,7 +390,7 @@ export const bookInfo: bookType[] = [
     name: "Micah",
     num: 33,
     chapters: 7,
-    versesInChapter: [0, 16, 13, 12, 14, 14, 16, 20],
+    versesInChapter: [0, 16, 13, 12, 13, 15, 16, 20],
     verses: 105
   },
   {
@@ -398,7 +398,7 @@ export const bookInfo: bookType[] = [
     name: "Nahum",
     num: 34,
     chapters: 3,
-    versesInChapter: [0, 14, 14, 19],
+    versesInChapter: [0, 15, 13, 19],
     verses: 47
   },
   {
@@ -430,7 +430,7 @@ export const bookInfo: bookType[] = [
     name: "Zechariah",
     num: 38,
     chapters: 14,
-    versesInChapter: [0, 17, 17, 10, 14, 11, 15, 14, 23, 17, 12,
+    versesInChapter: [0, 21, 13, 10, 14, 11, 15, 14, 23, 17, 12,
                          17, 14,  9, 21],
     verses: 211
   },
