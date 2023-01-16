@@ -42,7 +42,11 @@ export function convertToSFM(bookObj: books.objType) {
               SFMtext += SECTION_MARKER + unit.number + ' ' + unit.text + PARAGRAPH_MARKER + CRLF;
               break;
             case "verse":
-              SFMtext += VERSE_MARKER + unit.number + ' ' + unit.text + CRLF;
+              if (!unit.bridgeEnd) {
+                SFMtext += VERSE_MARKER + unit.number + ' ' + unit.text + CRLF;
+              } else {
+                SFMtext += VERSE_MARKER + unit.number + '-' + unit.bridgeEnd + ' ' + unit.text + CRLF;
+              }
               break;
             default:
               throw 'Invalid type on ' + JSON.stringify(unit) + '. \nLooking for "section" or "verse".';

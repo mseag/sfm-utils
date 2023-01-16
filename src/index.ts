@@ -162,13 +162,17 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
     bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
   }
 
+  if (!bookObj.content[currentChapter]) {
+    console.error(`${bookInfo.bookName} has insufficent chapters allocated to handle ${currentChapter}. Exiting`);
+    process.exit(1);
+  }
   if (bookObj.content[currentChapter].type != "chapter") {
     // Initialize current chapter
     bookObj.content[currentChapter].type = "chapter";
     bookObj.content[currentChapter].content = [];
   }
 
-  toolbox.updateObj(bookObj, filepath, currentChapter);
+  toolbox.updateObj(bookObj, filepath, currentChapter, debugMode);
 
   // For single file parameter, write valid output
   if (options.text && bookObj.header.bookInfo.code !== "000") {

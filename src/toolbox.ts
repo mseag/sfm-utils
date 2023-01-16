@@ -36,7 +36,11 @@ export type markerType =
   "\\vs" |
 
   // These are ignored
+  "\\_sh" |
   "\\c" |
+  "\\cl" |
+  "\\ft" |
+  "\\gl" |
   "\\ref" |
   "\\t" ;
 
@@ -113,12 +117,14 @@ export function initializeBookObj(bookName: string, projectName: string) : books
  * @param {book.objType} bookObj - Book object to modify
  * @param {string} file - Path to the Toolbox text file
  * @param {number} currentChapter - Book chapter to modify
+ * @param {boolean} debugMode - Whether to print additional logging
  */
-export function updateObj(bookObj: books.objType, file: string, currentChapter: number) {
+export function updateObj(bookObj: books.objType, file: string, currentChapter: number, debugMode = false) {
   // Read in Toolbox file and strip out empty lines
   let toolboxFile = fs.readFileSync(file, 'utf-8');
   toolboxFile = toolboxFile.replace(/(\r\n?){2,}/g, '\r\n');
   const toolboxData = toolboxFile.split(/\r\n?/);
+  const SECTION_TITLE = 'title.';
   if (toolboxData[toolboxData.length - 1] == '') {
     // If last line empty, remove it
     toolboxData.pop();
@@ -133,18 +139,23 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
       mode = 'VS_AS_VERSE';
       return false;
     }
-    // Continue the very() loop
+    // Continue the every() loop
     return true;
   });
 
   // Split each line on marker and content
-  const markerPattern = /(\\[A-Za-z]+)\s(.*)/;
+  const markerPattern = /(\\_?[A-Za-z]+)\s?(.*)/;
   let verseNum = 1; // Keep track of the current verse to write
   let action : actionType = 'START';
   let section_title_written = false;
   toolboxData.forEach(line => {
+    if (line.trim() === '') {
+      // Skip
+      return;
+    }
     const lineMatch = line.match(markerPattern);
-    if (lineMatch) {
+    // Skip markers lacking content
+    if (lineMatch && lineMatch[2] != '') {
       const marker: markerType = lineMatch[1] as markerType;
       const content: string = lineMatch[2];
       const unit: books.unitType = {
@@ -157,21 +168,40 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
       if (mode == 'TX_AS_VERSE') {
         // Basic processing mode
         switch (marker) {
+          case '\\_sh':
           case '\\c' :
+          case '\\cl' :
+          case '\\ft' :
+          case '\\gl' :
+          case '\\ref' :
             // Markers to ignore
             break;
           case '\\tx' :
-            // Add a new verse
-            unit.type = "verse";
-            // unit.text already set
-            bookObj.content[currentChapter].content.push(unit);
-            verseNum++;
+            if (unit.text?.startsWith(SECTION_TITLE)) {
+              // Treat \tx title... as \vs (section title)
+
+              unit.type = "section";
+              // Trim "title." from content string
+              unit.text = unit.text.slice(SECTION_TITLE.length);
+              unit.number = (section_title_written) ? 2 : 1;
+              section_title_written = true;
+
+              // Add section
+              bookObj.content[currentChapter].content.push(unit);
+            } else {
+              // Otherwise, add a new verse
+              unit.type = "verse";
+              // unit.text already set
+              bookObj.content[currentChapter].content.push(unit);
+              verseNum++;
+            }
             break;
           case '\\vs' :
             if (contentLength > 0) {
               // Convert previous line from "verse" to "section", number "1"
               bookObj.content[currentChapter].content[contentLength - 1].type = "section";
-              bookObj.content[currentChapter].content[contentLength - 1].number = 1;
+              bookObj.content[currentChapter].content[contentLength - 1].number = (section_title_written) ? 2 : 1;
+              section_title_written = true;
               verseNum--;
             }
             break;
@@ -184,16 +214,36 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           return;
         }
         // Determine if any other \\vs special processing needed
-        let vs_other = false, vs_section_header = false;
+        let vs_section_header = false, vs_verse_bridge = false, vs_other = false;
+        let bridgeStart = verseNum, bridgeEnd = verseNum; // Start and end of a verse bridge
         if (marker == '\\vs') {
-          const vsPattern = /\\vs\s+\*?(\d+|\(section title\))([a-z])?.*/;
-          const vsPatternMatch = line.match(vsPattern);
+          const vsPattern = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\])\s?([a-z])?\??.*/;
+          const vsPatternMatch = line.trim().match(vsPattern);
           if(vsPatternMatch){
-            if(vsPatternMatch[1] == '(section title)') {
+            if(vsPatternMatch[1].includes('section')) {
               vs_section_header = true;
-            } else if (vsPatternMatch[2] && vsPatternMatch[2] != 'a') {
+            } else if (vsPatternMatch[1].includes('-')) {
+              vs_verse_bridge = true;
+              // Verse bridge could be marked with (x-y) or [x-y]
+              const vsBridgePattern = /(\(|\[)(\d+)-(\d+)(\)|\])/;
+              const vsBridgeMatch = vsPatternMatch[1].match(vsBridgePattern);
+              if (vsBridgeMatch) {
+                // Determine the start and end of the verse bridge
+                if (vsBridgeMatch[2]) {
+                  bridgeStart = parseInt(vsBridgeMatch[2]);
+                }
+                if (vsBridgeMatch[3]) {
+                  bridgeEnd = parseInt(vsBridgeMatch[3]);
+                }
+              }
+            }
+            if (vsPatternMatch[2] && vsPatternMatch[2] != 'a') {
               vs_other = true; // verse #-other letter besides "a"
             }
+          } else {
+            // Skip unrecognized \vs line
+            console.warn(`${bookObj.header.bookInfo.name} ch ${currentChapter}: Skipping unrecognized line "${line}".`);
+            return;
           }
         }
 
@@ -221,6 +271,8 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
               action = 'APPEND_TO_VERSE'
             } else if (vs_other) {
               action = 'MERGE_VERSES';
+            } else if (vs_section_header) {
+              action = 'MODIFY_VERSE_TO_SECTION'
             } else if (marker == '\\vs') {
               action = 'INCREMENT_VERSE_NUM';
             }
@@ -244,6 +296,11 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
             console.warn('Unexpected action state: ' + action);
         }
 
+        // For debugging state machine
+        if (debugMode) {
+          console.info(`${marker}, ${action}, ${verseNum}`);
+        }
+
         // Process the action
         switch(action) {
           case 'START' :
@@ -264,14 +321,20 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
             }
             break;
           case 'INCREMENT_VERSE_NUM' :
-            verseNum++;
+            // Update verseNum to either after the end of a verse span, or increment
+            //verseNum++
+            verseNum = (vs_verse_bridge) ? bridgeEnd + 1 : verseNum + 1;
             break;
           case 'MERGE_VERSES' : {
-            // Complicated task of merging the previous two verses, and assigning number = verseNum-1
+            // Complicated task of merging the previous two verses, and assigning number
             const lastVerse = bookObj.content[currentChapter].content.pop();
             contentLength--;
             bookObj.content[currentChapter].content[contentLength - 1].text += lastVerse.text;
-            bookObj.content[currentChapter].content[contentLength - 1].number = verseNum-1;
+            bookObj.content[currentChapter].content[contentLength - 1].number = (vs_verse_bridge) ? bridgeStart : verseNum-1;
+
+            if (vs_verse_bridge) {
+              bookObj.content[currentChapter].content[contentLength - 1].bridgeEnd = bridgeEnd;
+            }
             break;
           }
           case 'MODIFY_VERSE_TO_SECTION' :
@@ -285,7 +348,9 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         }
       }
     } else {
-      console.warn(`Unable to parse line: "${line}" from "${file}" - skipping...`);
+      if (lineMatch && lineMatch[2] != '') {
+        console.warn(`Unable to parse line: "${line}" from "${file}" - skipping...`);
+      }
     }
 
   });

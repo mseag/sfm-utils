@@ -2,7 +2,8 @@
 
 There are two modes for parsing the .txt files in [toolbox.ts](../src/toolbox.ts) into a JSON Object based on how the `\tx` and `\vs` markers are used in the file.
 The regex splits each line into `marker` and `content`:
-* `TX_AS_VERSE`: Each `\tx` marker creates a new verse, `\vs` is only used for section header
+* `TX_AS_VERSE`: Each `\tx` marker creates a new verse, `\vs` only used as `\vs (section title)`.
+                 Also treats `\tx title....` as `\vs (section title)`.
 * `VS_AS_VERSE`: `\vs` marks verse numbers along with section headers. Uses the state machine below:
 
 ```typescript
@@ -19,9 +20,16 @@ type actionType =
                               // This handles \vs 13b, \vs 13c, etc.
 ```
 
-If the marker is `\vs`, theres 2 additional booleans to determine special cases:
+If the marker is `\vs`, theres 3 additional booleans to determine special cases:
+* `vs_verse_bridge` - The `vs` marks a verse bridge (x-y) or [x-y]. It does special handling for verseNum (current verse counter), since it marks text that spans multiple verses.
 * `vs_other` - The `\vs` marks a verse #-other letter besides "a"
 * `vs_section_header` - The `\vs` marks a section header (section title)
+    Variations of section header include:
+    ```
+    \vs (section heading)
+    \vs (section title)
+    \vs section title
+     ```
 
 ## State machine of the actions and markers
 ```mermaid
@@ -32,6 +40,7 @@ flowchart TD
     B -- \tx --> C[APPEND_TO_VERSE];
     C -- \tx --> C;
     C -- \vs --> D[INCREMENT_VERSE_NUM];
+    C -- vs_section_header --> E;
     D -- \tx --> B;
     B -- \vs --> D;
     C -- \vs_other --> F[MERGE_VERSES];

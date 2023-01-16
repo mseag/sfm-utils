@@ -689,7 +689,8 @@ export type unitSubtype =
 
 export interface unitType {
   type: unitSubtype,
-  number: number, // Verse number or section title level
+  number: number,    // Used for section level, verse number, or start of a verse bridge
+  bridgeEnd?: number,  // When used, marks the end of a verse bridge
   content?: any,
   text?: string
 }
