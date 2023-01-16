@@ -214,8 +214,8 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           return;
         }
         // Determine if any other \\vs special processing needed
-        let vs_section_header = false, vs_verse_span = false, vs_other = false;
-        let spanStart = verseNum, spanEnd = verseNum; // End of verse span number
+        let vs_section_header = false, vs_verse_bridge = false, vs_other = false;
+        let bridgeStart = verseNum, bridgeEnd = verseNum; // Start and end of a verse bridge
         if (marker == '\\vs') {
           const vsPattern = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\])\s?([a-z])?\??.*/;
           const vsPatternMatch = line.trim().match(vsPattern);
@@ -223,17 +223,17 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
             if(vsPatternMatch[1].includes('section')) {
               vs_section_header = true;
             } else if (vsPatternMatch[1].includes('-')) {
-              vs_verse_span = true;
-              // Verse spans could use (x-y) or [x-y]
-              const vsSpanPattern = /(\(|\[)(\d+)-(\d+)(\)|\])/;
-              const vsSpanMatch = vsPatternMatch[1].match(vsSpanPattern);
-              if (vsSpanMatch) {
-                // Determine the start and end of the verse span
-                if (vsSpanMatch[2]) {
-                  spanStart = parseInt(vsSpanMatch[2]);
+              vs_verse_bridge = true;
+              // Verse bridge could be marked with (x-y) or [x-y]
+              const vsBridgePattern = /(\(|\[)(\d+)-(\d+)(\)|\])/;
+              const vsBridgeMatch = vsPatternMatch[1].match(vsBridgePattern);
+              if (vsBridgeMatch) {
+                // Determine the start and end of the verse bridge
+                if (vsBridgeMatch[2]) {
+                  bridgeStart = parseInt(vsBridgeMatch[2]);
                 }
-                if (vsSpanMatch[3]) {
-                  spanEnd = parseInt(vsSpanMatch[3]);
+                if (vsBridgeMatch[3]) {
+                  bridgeEnd = parseInt(vsBridgeMatch[3]);
                 }
               }
             }
@@ -323,14 +323,18 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           case 'INCREMENT_VERSE_NUM' :
             // Update verseNum to either after the end of a verse span, or increment
             //verseNum++
-            verseNum = (vs_verse_span) ? spanEnd + 1 : verseNum + 1;
+            verseNum = (vs_verse_bridge) ? bridgeEnd + 1 : verseNum + 1;
             break;
           case 'MERGE_VERSES' : {
             // Complicated task of merging the previous two verses, and assigning number
             const lastVerse = bookObj.content[currentChapter].content.pop();
             contentLength--;
             bookObj.content[currentChapter].content[contentLength - 1].text += lastVerse.text;
-            bookObj.content[currentChapter].content[contentLength - 1].number = (vs_verse_span) ? spanStart : verseNum-1;
+            bookObj.content[currentChapter].content[contentLength - 1].number = (vs_verse_bridge) ? bridgeStart : verseNum-1;
+
+            if (vs_verse_bridge) {
+              bookObj.content[currentChapter].content[contentLength - 1].bridgeEnd = bridgeEnd;
+            }
             break;
           }
           case 'MODIFY_VERSE_TO_SECTION' :
