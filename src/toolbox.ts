@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path'
 import * as books from './books';
+import * as sfmConsole from './sfmConsole';
 
 /**
  * Enum to know what mode to parse the Toolbox file
@@ -117,9 +118,11 @@ export function initializeBookObj(bookName: string, projectName: string) : books
  * @param {book.objType} bookObj - Book object to modify
  * @param {string} file - Path to the Toolbox text file
  * @param {number} currentChapter - Book chapter to modify
+ * @param {sfmConsole.SFMConsole} - Object that maintains logging
  * @param {boolean} debugMode - Whether to print additional logging
  */
-export function updateObj(bookObj: books.objType, file: string, currentChapter: number, debugMode = false) {
+export function updateObj(bookObj: books.objType, file: string, currentChapter: number,
+    s: sfmConsole.SFMConsole, debugMode = false) {
   // Read in Toolbox file and strip out empty lines
   let toolboxFile = fs.readFileSync(file, 'utf-8');
   toolboxFile = toolboxFile.replace(/(\r\n?){2,}/g, '\r\n');
@@ -242,7 +245,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
             }
           } else {
             // Skip unrecognized \vs line
-            console.warn(`${bookObj.header.bookInfo.name} ch ${currentChapter}: Skipping unrecognized line "${line}".`);
+            s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter}: Skipping unrecognized line "${line}".`);
             return;
           }
         }
@@ -349,7 +352,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
       }
     } else {
       if (lineMatch && lineMatch[2] != '') {
-        console.warn(`Unable to parse line: "${line}" from "${file}" - skipping...`);
+        s.log('warn', `Unable to parse line: "${line}" from "${file}" - skipping...`);
       }
     }
 
@@ -357,7 +360,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
   // Sanity check on verse numbers for the current chapter
   if (bookObj.header.bookInfo.versesInChapter &&
       verseNum-1 > bookObj.header.bookInfo.versesInChapter[currentChapter]) {
-    console.warn(`${bookObj.header.bookInfo.name} ch ${currentChapter} has ` +
+    s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter} has ` +
       `${verseNum-1} verses, should be ${bookObj.header.bookInfo.versesInChapter[currentChapter]}.`);
   }
 }

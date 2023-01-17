@@ -2,10 +2,10 @@
 // Copyright 2022 SIL International
 import * as program from 'commander';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as books from './books';
 import * as toolbox from './toolbox';
 import * as sfm from './sfm';
+import * as sfmConsole from './sfmConsole';
 import * as fileAssistant from './fileAssistant';
 const {version} = require('../package.json');
 
@@ -52,6 +52,9 @@ if (!options.projectName) {
   process.exit(1);
 }
 
+// Initialize the logger to use "Extra Book A"
+const s = new sfmConsole.SFMConsole(options.projectName, 'XXA');
+
 // Check if txt/JSON file or directory exists
 if (options.text && !fs.existsSync(options.text)) {
   console.error("Can't open Toolbox text file " + options.text);
@@ -95,6 +98,8 @@ if (options.json) {
   processSuperDirectory(options.superDirectory);
 }
 
+// Write SFM Console log to extra book file
+s.writeLog();
 
 ////////////////////////////////////////////////////////////////////
 // Processor functions
@@ -172,7 +177,7 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
     bookObj.content[currentChapter].content = [];
   }
 
-  toolbox.updateObj(bookObj, filepath, currentChapter, debugMode);
+  toolbox.updateObj(bookObj, filepath, currentChapter, s, debugMode);
 
   // For single file parameter, write valid output
   if (options.text && bookObj.header.bookInfo.code !== "000") {

@@ -5,6 +5,7 @@
  * 3-character book code that Paratext uses (from BookNames.xml).
  * "000" is a placeholder for book number 0 so that book number matches index.
  *       (not a valid Paratext book code)
+ * "XXA" to "XXG" are extra books that can be used for SFM Console logging.
  */
 export type CodeType =
   // Placeholder
@@ -25,12 +26,17 @@ export type CodeType =
   "GAL" | "EPH" | "PHP" | "COL" |
   "1TH" | "2TH" | "1TI" | "2TI" |
   "TIT" | "PHM" | "HEB" | "JAS" | "1PE" | "2PE" |
-  "1JN" | "2JN" | "3JN" | "JUD" | "REV";
+  "1JN" | "2JN" | "3JN" | "JUD" | "REV" |
+
+  // Extra books for logging
+  "XXA" | "XXB" | "XXC" | "XXD" | "XXE" | "XXF" | "XXG";
 
 export interface bookType {
-  code: CodeType;   // 3-character book code
+  code: CodeType;   // 3-character book indentifier as defined by
+                    // https://ubsicap.github.io/usfm/identification/books.html
   name: string;     // Book name
-  num: number;      // Book number
+  num: number;      // Book number as defined by
+                    // https://ubsicap.github.io/usfm/identification/books.html
   chapters: number; // Total number of chapters in the book
   versesInChapter: number[]; // Number of verses in each chapter (placeholder at 0)
   verses: number;   // Total number of verses in the book
@@ -41,7 +47,7 @@ export interface bookType {
  * Array of bookType containing information about each book
 */
 export const bookInfo: bookType[] = [
-{
+  {
     // Just a placeholder. Not a valid book
     code: "000",
     name: "Placeholder",
@@ -674,6 +680,64 @@ export const bookInfo: bookType[] = [
                          19, 17, 18, 20,  8, 21, 18, 24, 21, 15,
                          27, 21],
     verses: 404
+  },
+
+  // Extra books for logging
+  {
+    code: "XXA",
+    name: "Extra Book A",
+    num: 94,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
+  },
+  {
+    code: "XXB",
+    name: "Extra Book B",
+    num: 95,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
+  },
+  {
+    code: "XXC",
+    name: "Extra Book C",
+    num: 96,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
+  },
+  {
+    code: "XXD",
+    name: "Extra Book D",
+    num: 97,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
+  },
+  {
+    code: "XXE",
+    name: "Extra Book E",
+    num: 98,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
+  },
+  {
+    code: "XXF",
+    name: "Extra Book F",
+    num: 99,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
+  },
+  {
+    code: "XXG",
+    name: "Extra Book G",
+    num: 100,
+    chapters: 999,
+    versesInChapter: [0],
+    verses: 0
   }
 ];
 //#endregion
