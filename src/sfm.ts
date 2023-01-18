@@ -1,13 +1,14 @@
 // Copyright 2022 SIL International
 // Utilities for converting a JSON file to USFM
 import * as books from './books';
+import * as sfmConsole from './sfmConsole';
 import * as fs from 'fs';
 
 /**
  * Parse a JSON file and converts it to USFM
  * @param {Books.objType} bookObj - a book type of JSON object
  */
-export function convertToSFM(bookObj: books.objType) {
+export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) {
 
   const ID_MARKER = "\\id ";
   const USFM_MARKER = "\\usfm ";
@@ -52,6 +53,8 @@ export function convertToSFM(bookObj: books.objType) {
               throw 'Invalid type on ' + JSON.stringify(unit) + '. \nLooking for "section" or "verse".';
           }
         });
+      } else {
+        s.log('info', `${bookObj.header.bookInfo.name} ch ${chapter.number} is empty`)
       }
     }
   });

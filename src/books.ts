@@ -453,7 +453,7 @@ export const bookInfo: bookType[] = [
   {
     code: "MAT",
     name: "Matthew",
-    num: 40,
+    num: 41,
     chapters: 28,
     versesInChapter: [0, 25, 23, 17, 25, 48, 34, 29, 34, 38, 42,
                          30, 50, 58, 36, 39, 28, 27, 35, 30, 34,
@@ -463,7 +463,7 @@ export const bookInfo: bookType[] = [
   {
     code: "MRK",
     name: "Mark",
-    num: 41,
+    num: 42,
     chapters: 16,
     versesInChapter: [0, 45, 28, 35, 41, 43, 56, 37, 38, 50, 52,
                          33, 44, 37, 72, 47, 20],
@@ -472,7 +472,7 @@ export const bookInfo: bookType[] = [
   {
     code: "LUK",
     name: "Luke",
-    num: 42,
+    num: 43,
     chapters: 24,
     versesInChapter: [0, 80, 52, 38, 44, 39, 49, 50, 56, 62, 42,
                          54, 59, 35, 35, 32, 31, 37, 43, 48, 47,
@@ -482,7 +482,7 @@ export const bookInfo: bookType[] = [
   {
     code: "JHN",
     name: "John",
-    num: 43,
+    num: 44,
     chapters: 21,
     versesInChapter: [0, 51, 25, 36, 54, 47, 71, 53, 59, 41, 42,
                          57, 50, 38, 31, 27, 33, 26, 40, 42, 31,
@@ -492,7 +492,7 @@ export const bookInfo: bookType[] = [
   {
     code: "ACT",
     name: "Acts",
-    num: 44,
+    num: 45,
     chapters: 28,
     versesInChapter: [0, 26, 47, 26, 37, 42, 15, 60, 40, 43, 48,
                          30, 25, 52, 28, 41, 40, 34, 28, 41, 38,
@@ -502,7 +502,7 @@ export const bookInfo: bookType[] = [
   {
     code: "ROM",
     name: "Romans",
-    num: 45,
+    num: 46,
     chapters: 16,
     versesInChapter: [0, 32, 29, 31, 25, 21, 23, 25, 39, 33, 21,
                          36, 21, 14, 23, 33, 27],
@@ -511,7 +511,7 @@ export const bookInfo: bookType[] = [
   {
     code: "1CO",
     name: "1 Corinthians",
-    num: 46,
+    num: 47,
     chapters: 16,
     versesInChapter: [0, 31, 16, 23, 21, 13, 20, 40, 13, 27, 33,
                          34, 31, 13, 40, 58, 24],
@@ -520,7 +520,7 @@ export const bookInfo: bookType[] = [
   {
     code: "2CO",
     name: "2 Corinthians",
-    num: 47,
+    num: 48,
     chapters: 13,
     versesInChapter: [0, 24, 17, 18, 18, 21, 18, 16, 24, 15, 18,
                          33, 21, 14],
@@ -529,7 +529,7 @@ export const bookInfo: bookType[] = [
   {
     code: "GAL",
     name: "Galatians",
-    num: 48,
+    num: 49,
     chapters: 6,
     versesInChapter: [0, 24, 21, 29, 31, 26, 18],
     verses: 149
@@ -537,7 +537,7 @@ export const bookInfo: bookType[] = [
   {
     code: "EPH",
     name: "Ephesians",
-    num: 49,
+    num: 50,
     chapters: 6,
     versesInChapter: [0, 23, 22, 21, 32, 33, 24],
     verses: 155
@@ -545,7 +545,7 @@ export const bookInfo: bookType[] = [
   {
     code: "PHP",
     name: "Philippians",
-    num: 50,
+    num: 51,
     chapters: 4,
     versesInChapter: [0, 30, 30, 21, 23],
     verses: 104
@@ -553,7 +553,7 @@ export const bookInfo: bookType[] = [
   {
     code: "COL",
     name: "Colossians",
-    num: 51,
+    num: 52,
     chapters: 4,
     versesInChapter: [0, 29, 23, 25, 18],
     verses: 95
@@ -561,7 +561,7 @@ export const bookInfo: bookType[] = [
   {
     code: "1TH",
     name: "1 Thessalonians",
-    num: 52,
+    num: 53,
     chapters: 5,
     versesInChapter: [0, 10, 20, 13, 18, 28],
     verses: 89
@@ -569,7 +569,7 @@ export const bookInfo: bookType[] = [
   {
     code: "2TH",
     name: "2 Thessalonians",
-    num: 53,
+    num: 54,
     chapters: 3,
     versesInChapter: [0, 12, 17, 18],
     verses: 47
@@ -577,7 +577,7 @@ export const bookInfo: bookType[] = [
   {
     code: "1TI",
     name: "1 Timothy",
-    num: 54,
+    num: 55,
     chapters: 6,
     versesInChapter: [0, 20, 15, 16, 16, 25, 21],
     verses: 113
@@ -585,7 +585,7 @@ export const bookInfo: bookType[] = [
   {
     code: "2TI",
     name: "2 Timothy",
-    num: 55,
+    num: 56,
     chapters: 4,
     versesInChapter: [0, 18, 26, 17, 22],
     verses: 83
@@ -593,7 +593,7 @@ export const bookInfo: bookType[] = [
   {
     code: "TIT",
     name: "Titus",
-    num: 56,
+    num: 57,
     chapters: 3,
     versesInChapter: [0, 16, 15, 15],
     verses: 46
@@ -601,7 +601,7 @@ export const bookInfo: bookType[] = [
   {
     code: "PHM",
     name: "Philemon",
-    num: 57,
+    num: 58,
     chapters: 1,
     versesInChapter: [0, 25],
     verses: 25
@@ -609,7 +609,7 @@ export const bookInfo: bookType[] = [
   {
     code: "HEB",
     name: "Hebrews",
-    num: 58,
+    num: 59,
     chapters: 13,
     versesInChapter: [0, 14, 18, 19, 16, 14, 20, 28, 13, 28, 39,
                          40, 29, 25],
@@ -618,7 +618,7 @@ export const bookInfo: bookType[] = [
   {
     code: "JAS",
     name: "James",
-    num: 59,
+    num: 60,
     chapters: 5,
     versesInChapter: [0, 27, 26, 18, 17, 20],
     verses: 108
@@ -626,7 +626,7 @@ export const bookInfo: bookType[] = [
   {
     code: "1PE",
     name: "1 Peter",
-    num: 60,
+    num: 61,
     chapters: 5,
     versesInChapter: [0, 25, 25, 22, 19, 14],
     verses: 105
@@ -634,7 +634,7 @@ export const bookInfo: bookType[] = [
   {
     code: "2PE",
     name: "2 Peter",
-    num: 61,
+    num: 62,
     chapters: 3,
     versesInChapter: [0, 21, 22, 18],
     verses: 61
@@ -642,7 +642,7 @@ export const bookInfo: bookType[] = [
   {
     code: "1JN",
     name: "1 John",
-    num: 62,
+    num: 63,
     chapters: 5,
     versesInChapter: [0, 10, 29, 24, 21, 21],
     verses: 105
@@ -650,7 +650,7 @@ export const bookInfo: bookType[] = [
   {
     code: "2JN",
     name: "2 John",
-    num: 63,
+    num: 64,
     chapters: 1,
     versesInChapter: [0, 13],
     verses: 13
@@ -658,7 +658,7 @@ export const bookInfo: bookType[] = [
   {
     code: "3JN",
     name: "3 John",
-    num: 64,
+    num: 65,
     chapters: 1,
     versesInChapter: [0, 14],
     verses: 14
@@ -666,7 +666,7 @@ export const bookInfo: bookType[] = [
   {
     code: "JUD",
     name: "Jude",
-    num: 65,
+    num: 66,
     chapters: 1,
     versesInChapter: [0, 25],
     verses: 25
@@ -674,7 +674,7 @@ export const bookInfo: bookType[] = [
   {
     code: "REV",
     name: "Revelation",
-    num: 66,
+    num: 67,
     chapters: 22,
     versesInChapter: [0, 20, 29, 22, 11, 14, 17, 17, 13, 21, 11,
                          19, 17, 18, 20,  8, 21, 18, 24, 21, 15,
