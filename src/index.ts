@@ -137,7 +137,7 @@ function processDirectory(directory: string){
     writeJSON(bookObj);
 
     // valid JSON Object to SFM
-    sfm.convertToSFM(bookObj);
+    sfm.convertToSFM(bookObj, s);
   }
 }
 
@@ -185,7 +185,7 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
     writeJSON(bookObj);
 
     //valid JSON Object to SFM
-    sfm.convertToSFM(bookObj);
+    sfm.convertToSFM(bookObj, s);
   }
 
   return bookObj;
@@ -207,7 +207,7 @@ function processJSON(filepath: string){
 
   // Write out valid JSON Object to SFM
   if (bookObj.header.bookInfo.code !== "000") {
-    sfm.convertToSFM(bookObj);
+    sfm.convertToSFM(bookObj, s);
   }
 
 }
