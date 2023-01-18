@@ -74,10 +74,12 @@ To rebuild the project
 npm run build
 ```
 
-You can also have TypeScript watch the project and recompile automatically
+To watch the project and recompile automatically
 ```bash
 npm run watch
 ```
+
+**Note: Our `.vscode > tasks.json` comes with "runOptions" of `npm run watch` set to "folderOpen", which means that by default, Visual Studio code always calls `npm run watch` upon startup in the sfm-utils project, and developers don't have to compile manually.**
 
 ### Debugging with Visual Studio Code
 Open Folder as a VS Code Project
