@@ -61,7 +61,7 @@ export const VS_PATTERN = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading
  * [13-14]
  * 13-14
  */
-export const VS_BRIDGE_PATTERN = /(\(|\[)(\d+)-(\d+)(\)|\])/;
+export const VS_BRIDGE_PATTERN = /(\(|\[)?(\d+)-(\d+)(\)|\])?/;
 
 /**
  * Information about the Toolbox text file based on the filename
