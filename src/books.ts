@@ -902,7 +902,7 @@ export function getBookByName(name: string): bookType {
 
 /**
  * Get the book information given the book number.
- * If the book number doesn't exist or is 0, then exit.
+ * If the book number doesn't exist or is 0, return PLACEHOLDER_BOOK.
  * @param {number} bookNumber
  * @returns {bookType}
  */
@@ -913,7 +913,7 @@ export function getBookByNumber(bookNumber: number) : bookType {
     return book;
   } else {
     console.error(`getBookByNumber(${bookNumber}) does not exist`);
-    process.exit(1);
+    return PLACEHOLDER_BOOK;
   }
 }
 
