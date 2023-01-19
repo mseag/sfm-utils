@@ -902,12 +902,12 @@ export function getBookByName(name: string): bookType {
 
 /**
  * Get the book information given the book number.
- * If the book number doesn't exist or is 0, return PLACEHOLDER_BOOK.
+ * If the book number doesn't exist, return PLACEHOLDER_BOOK.
  * @param {number} bookNumber
  * @returns {bookType}
  */
 export function getBookByNumber(bookNumber: number) : bookType {
-  const book = bookInfo.find(b => b.num == bookNumber && bookNumber != 0);
+  const book = bookInfo.find(b => b.num == bookNumber);
 
   if (book) {
     return book;
