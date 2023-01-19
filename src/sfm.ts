@@ -13,7 +13,7 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
   const ID_MARKER = "\\id ";
   const USFM_MARKER = "\\usfm ";
   const HEADER_MARKER = "\\h ";
-  const TOC_MARKER = "\\toc ";
+  const TOC_MARKER = "\\toc1 ";
   const MAIN_TITLE_MARKER = "\\mt ";
   const CHAPTER_MARKER = "\\c ";
   const SECTION_MARKER = "\\s"; // number gets added later
@@ -34,7 +34,9 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
 
   chapters.forEach(function(chapter) {
     if(chapter.number != 0){
+      // Chapter markers must be followed by paragraph marker for styling in Paratext
       SFMtext += CHAPTER_MARKER + chapter.number + CRLF;
+      SFMtext += PARAGRAPH_MARKER + CRLF;
       if(chapter.content){
         const sectionsAndVerses = chapter.content;
         sectionsAndVerses.forEach(function(unit) {
