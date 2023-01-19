@@ -125,8 +125,8 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
     s: sfmConsole.SFMConsole, debugMode = false) {
   // Read in Toolbox file and strip out empty lines
   let toolboxFile = fs.readFileSync(file, 'utf-8');
-  toolboxFile = toolboxFile.replace(/(\r\n?){2,}/g, '\r\n');
-  const toolboxData = toolboxFile.split(/\r\n?/);
+  toolboxFile = toolboxFile.replace(/(\r?\n){2,}/g, '\r\n');
+  const toolboxData = toolboxFile.split(/\r?\n/);
   const SECTION_TITLE = 'title.';
   if (toolboxData[toolboxData.length - 1] == '') {
     // If last line empty, remove it
