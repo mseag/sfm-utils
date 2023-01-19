@@ -34,9 +34,11 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
 
   chapters.forEach(function(chapter) {
     if(chapter.number != 0){
-      // Chapter markers must be followed by paragraph marker for styling in Paratext
       SFMtext += CHAPTER_MARKER + chapter.number + CRLF;
-      SFMtext += PARAGRAPH_MARKER + CRLF;
+      if (chapter.number == 1) {
+        // For Chapter 1, marker must be followed by paragraph marker for styling in Paratext
+        SFMtext += PARAGRAPH_MARKER + CRLF;
+      }
       if(chapter.content){
         const sectionsAndVerses = chapter.content;
         sectionsAndVerses.forEach(function(unit) {
