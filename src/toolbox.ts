@@ -46,6 +46,24 @@ export type markerType =
   "\\t" ;
 
 /**
+ * Regex to parse all the variations of \vs marker (along with all the optional punctuation marks)
+ * \vs (section title)
+ * \vs (section heading)
+ * \vs (13-14) b
+ * \vs [13-14] b
+ * TODO: \vs 13-14 (b)
+ */
+export const VS_PATTERN = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\])\s?([a-z])?\??.*/;
+
+/**
+ * Regex to parse all the variations of verse bridges to extract verse ranges
+ * (13-14)
+ * [13-14]
+ * 13-14
+ */
+export const VS_BRIDGE_PATTERN = /(\(|\[)(\d+)-(\d+)(\)|\])/;
+
+/**
  * Information about the Toolbox text file based on the filename
  */
 export interface fileInfoType {
@@ -220,16 +238,13 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         let vs_section_header = false, vs_verse_bridge = false, vs_other = false;
         let bridgeStart = verseNum, bridgeEnd = verseNum; // Start and end of a verse bridge
         if (marker == '\\vs') {
-          const vsPattern = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\])\s?([a-z])?\??.*/;
-          const vsPatternMatch = line.trim().match(vsPattern);
+          const vsPatternMatch = line.trim().match(VS_PATTERN);
           if(vsPatternMatch){
             if(vsPatternMatch[1].includes('section')) {
               vs_section_header = true;
             } else if (vsPatternMatch[1].includes('-')) {
               vs_verse_bridge = true;
-              // Verse bridge could be marked with (x-y) or [x-y]
-              const vsBridgePattern = /(\(|\[)(\d+)-(\d+)(\)|\])/;
-              const vsBridgeMatch = vsPatternMatch[1].match(vsBridgePattern);
+              const vsBridgeMatch = vsPatternMatch[1].match(VS_BRIDGE_PATTERN);
               if (vsBridgeMatch) {
                 // Determine the start and end of the verse bridge
                 if (vsBridgeMatch[2]) {
