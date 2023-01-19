@@ -901,16 +901,19 @@ export function getBookByName(name: string): bookType {
 }
 
 /**
- * Get the book information given the book number (between 1 and 66 inclusive).
+ * Get the book information given the book number.
+ * If the book number doesn't exist, return PLACEHOLDER_BOOK.
  * @param {number} bookNumber
  * @returns {bookType}
  */
 export function getBookByNumber(bookNumber: number) : bookType {
-  if (bookNumber < 1 || bookNumber > 66) {
-    console.error(`getBookByNumber failed with book number: ${bookNumber}`);
-    process.exit(1);
-  }
+  const book = bookInfo.find(b => b.num == bookNumber);
 
-  return bookInfo[bookNumber];
+  if (book) {
+    return book;
+  } else {
+    console.error(`getBookByNumber(${bookNumber}) does not exist`);
+    return PLACEHOLDER_BOOK;
+  }
 }
 
