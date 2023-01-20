@@ -51,17 +51,18 @@ export type markerType =
  * \vs (section heading)
  * \vs (13-14) b
  * \vs [13-14] b
- * TODO: \vs 13-14 (b)
+ * \vs 13-14 (b)
  */
-export const VS_PATTERN = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\])\s?([a-z])?\??.*/;
+export const VS_PATTERN = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\]|\d+-\d+)\s?\(?([a-z])?\)?\??.*/;
 
 /**
  * Regex to parse all the variations of verse bridges to extract verse ranges
  * (13-14)
  * [13-14]
  * 13-14
+ * 13a-14b
  */
-export const VS_BRIDGE_PATTERN = /(\(|\[)?(\d+)-(\d+)(\)|\])?/;
+export const VS_BRIDGE_PATTERN = /(\(|\[)?(\d+)[a-z]?-(\d+)[a-z]?(\)|\])?/;
 
 /**
  * Information about the Toolbox text file based on the filename

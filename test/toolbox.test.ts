@@ -11,7 +11,7 @@ import { VS_PATTERN, VS_BRIDGE_PATTERN } from '../dist/toolbox'
  * \vs (section heading)
  * \vs (13-14) b
  * \vs [13-14] b
- * TODO: \vs 13-14 (b)
+ * \vs 13-14 (b)
  */
 
 test('VS_PATTERN for section title/heading', t => {
@@ -74,6 +74,9 @@ test('VS_PATTERN for verse bridge', t => {
   line = "\\vs 13c-14a";
   t.regex(line.trim(), VS_PATTERN, "13c-14a matches");
 
+  line = "\\vs 8-9 (b)";
+  t.regex(line.trim(), VS_PATTERN, "8-9 (b) matches");
+
   line = "\\vs this should not match";
   t.notRegex(line.trim(), VS_PATTERN, "this should not match");
 })
@@ -94,15 +97,44 @@ test('VS_BRIDGE_PATTERN for verse ranges', t => {
   let vsBridgeMatch = line.trim().match(VS_BRIDGE_PATTERN);
 
   // validate verse range
-  /*t.truthy(vsBridgeMatch, 'bridge matches');
-  t.truthy(vsBridgeMatch[2]);
-  t.is(vsBridgeMatch[2], "13", "bridge start matches");*/
-  //t.deepEqual(vsBridgeMatch[3], "14", "bridge end matches");
+  if (vsBridgeMatch) {
+    if (vsBridgeMatch[2]) {
+      t.is(vsBridgeMatch[2], "13", "bridge start matches");
+    }
+    if (vsBridgeMatch[3]) {
+      t.is(vsBridgeMatch[3], "14", "bridge end matches");
+    }
+  }
+
+  line = "8-9 (b)";
+  t.regex(line.trim(), VS_BRIDGE_PATTERN, "8-9 (b) matches");
+  vsBridgeMatch = line.trim().match(VS_BRIDGE_PATTERN);
+
+  // validate verse range
+  if (vsBridgeMatch) {
+    if (vsBridgeMatch[2]) {
+      t.is(vsBridgeMatch[2], "8", "bridge start matches");
+    }
+    if (vsBridgeMatch[3]) {
+      t.is(vsBridgeMatch[3], "9", "bridge end matches");
+    }
+  }
 
   line = "13-14a";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "13-14a matches");
 
   line = "13a-14b";
-  t.notRegex(line.trim(), VS_BRIDGE_PATTERN, "13a-14b fails to match but should (TODO)");
+  t.regex(line.trim(), VS_BRIDGE_PATTERN, "13a-14b matches");
   vsBridgeMatch = line.trim().match(VS_BRIDGE_PATTERN);
+
+  // validate verse range
+  if (vsBridgeMatch) {
+    if (vsBridgeMatch[2]) {
+      t.is(vsBridgeMatch[2], "13", "bridge start matches");
+    }
+    if (vsBridgeMatch[3]) {
+      t.is(vsBridgeMatch[3], "14", "bridge end matches");
+    }
+  }
+
 })
