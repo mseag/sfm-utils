@@ -46,11 +46,62 @@ export type markerType =
   "\\t" ;
 
 /**
+ * Verse start and end of a verse bridge
+ */
+export interface bridgeType {
+  start: number;
+  end: number;
+}
+
+  /**
+ * Regex to parse all the variations of \vs marker (along with all the optional punctuation marks)
+ * \vs (section title)
+ * \vs (section heading)
+ * \vs (13-14) b
+ * \vs [13-14] b
+ * \vs 13-14 (b)
+ */
+export const VS_PATTERN = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\]|\d+-\d+)\s?\(?([a-z])?\)?\??.*/;
+
+/**
+ * Regex to parse all the variations of verse bridges to extract verse ranges
+ * (13-14)
+ * [13-14]
+ * 13-14
+ * 13a-14b
+ */
+export const VS_BRIDGE_PATTERN = /(\(|\[)?(\d+)[a-z]?-(\d+)[a-z]?(\)|\])?/;
+
+/**
  * Information about the Toolbox text file based on the filename
  */
 export interface fileInfoType {
   bookName: string;
   chapterNumber: number;
+}
+
+/**
+ * Determine the start and stop of a verse bridge
+ * @param {string} line - \vs line containing a verse bridge
+ * @param {number} verseNum - current verse number
+ */
+export function getVerseBridge(line: string, verseNum: number) : bridgeType {
+  let bridge: bridgeType = {
+    start: verseNum,
+    end: verseNum
+  };
+  const vsBridgeMatch = line.match(VS_BRIDGE_PATTERN);
+  if (vsBridgeMatch) {
+    // Determine the start and end of the verse bridge
+    if (vsBridgeMatch[2]) {
+      bridge.start = parseInt(vsBridgeMatch[2]);
+    }
+    if (vsBridgeMatch[3]) {
+      bridge.end = parseInt(vsBridgeMatch[3]);
+    }
+  }
+
+  return bridge;
 }
 
 /**
@@ -218,27 +269,19 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
         }
         // Determine if any other \\vs special processing needed
         let vs_section_header = false, vs_verse_bridge = false, vs_other = false;
-        let bridgeStart = verseNum, bridgeEnd = verseNum; // Start and end of a verse bridge
+        // Start and end of a verse bridge
+        let  bridge : bridgeType = {
+          start: verseNum,
+          end: verseNum
+        }
         if (marker == '\\vs') {
-          const vsPattern = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\])\s?([a-z])?\??.*/;
-          const vsPatternMatch = line.trim().match(vsPattern);
+          const vsPatternMatch = line.trim().match(VS_PATTERN);
           if(vsPatternMatch){
             if(vsPatternMatch[1].includes('section')) {
               vs_section_header = true;
             } else if (vsPatternMatch[1].includes('-')) {
               vs_verse_bridge = true;
-              // Verse bridge could be marked with (x-y) or [x-y]
-              const vsBridgePattern = /(\(|\[)(\d+)-(\d+)(\)|\])/;
-              const vsBridgeMatch = vsPatternMatch[1].match(vsBridgePattern);
-              if (vsBridgeMatch) {
-                // Determine the start and end of the verse bridge
-                if (vsBridgeMatch[2]) {
-                  bridgeStart = parseInt(vsBridgeMatch[2]);
-                }
-                if (vsBridgeMatch[3]) {
-                  bridgeEnd = parseInt(vsBridgeMatch[3]);
-                }
-              }
+              bridge = getVerseBridge(vsPatternMatch[1], verseNum);
             }
             if (vsPatternMatch[2] && vsPatternMatch[2] != 'a') {
               vs_other = true; // verse #-other letter besides "a"
@@ -326,17 +369,17 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
           case 'INCREMENT_VERSE_NUM' :
             // Update verseNum to either after the end of a verse span, or increment
             //verseNum++
-            verseNum = (vs_verse_bridge) ? bridgeEnd + 1 : verseNum + 1;
+            verseNum = (vs_verse_bridge) ? bridge.end + 1 : verseNum + 1;
             break;
           case 'MERGE_VERSES' : {
             // Complicated task of merging the previous two verses, and assigning number
             const lastVerse = bookObj.content[currentChapter].content.pop();
             contentLength--;
             bookObj.content[currentChapter].content[contentLength - 1].text += lastVerse.text;
-            bookObj.content[currentChapter].content[contentLength - 1].number = (vs_verse_bridge) ? bridgeStart : verseNum-1;
+            bookObj.content[currentChapter].content[contentLength - 1].number = (vs_verse_bridge) ? bridge.start : verseNum-1;
 
             if (vs_verse_bridge) {
-              bookObj.content[currentChapter].content[contentLength - 1].bridgeEnd = bridgeEnd;
+              bookObj.content[currentChapter].content[contentLength - 1].bridgeEnd = bridge.end;
             }
             break;
           }
