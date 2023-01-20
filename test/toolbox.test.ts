@@ -2,7 +2,7 @@
 // Trivial unit test for testing toolbox.ts regex
 import test from 'ava';
 
-import { VS_PATTERN, VS_BRIDGE_PATTERN } from '../dist/toolbox'
+import { VS_PATTERN, VS_BRIDGE_PATTERN, bridgeType, getVerseBridge } from '../dist/toolbox'
 
 
 /*
@@ -83,58 +83,59 @@ test('VS_PATTERN for verse bridge', t => {
 
 
 /**
- * VS_BRIDGE_PATTERN
+ * Tests VS_BRIDGE_PATTERN matches and determining verse bridges
  */
 test('VS_BRIDGE_PATTERN for verse ranges', t => {
   let line = "(13-14)";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "(13-14) matches");
+  t.deepEqual(getVerseBridge(line, 13), 
+    {
+      start: 13,
+      end: 14
+    }, "bridge (13, 14)");
 
   line = "[13-14]";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "[13-14] matches");
+  t.deepEqual(getVerseBridge(line, 13), 
+    {
+      start: 13,
+      end: 14
+    }, "bridge [13, 14]");
 
   line = "13-14";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "13-14 matches");
-  let vsBridgeMatch = line.trim().match(VS_BRIDGE_PATTERN);
-
-  // validate verse range
-  if (vsBridgeMatch) {
-    if (vsBridgeMatch[2]) {
-      t.is(vsBridgeMatch[2], "13", "bridge start matches");
-    }
-    if (vsBridgeMatch[3]) {
-      t.is(vsBridgeMatch[3], "14", "bridge end matches");
-    }
-  }
+  t.deepEqual(getVerseBridge(line, 13), 
+    {
+      start: 13,
+      end: 14
+    }, "bridge {13, 14}");
 
   line = "8-9 (b)";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "8-9 (b) matches");
-  vsBridgeMatch = line.trim().match(VS_BRIDGE_PATTERN);
-
-  // validate verse range
-  if (vsBridgeMatch) {
-    if (vsBridgeMatch[2]) {
-      t.is(vsBridgeMatch[2], "8", "bridge start matches");
-    }
-    if (vsBridgeMatch[3]) {
-      t.is(vsBridgeMatch[3], "9", "bridge end matches");
-    }
-  }
+  t.deepEqual(getVerseBridge(line, 8),
+    {
+      start: 8,
+      end: 9
+    }, "bridge 8-9 (b)");
 
   line = "13-14a";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "13-14a matches");
 
   line = "13a-14b";
   t.regex(line.trim(), VS_BRIDGE_PATTERN, "13a-14b matches");
-  vsBridgeMatch = line.trim().match(VS_BRIDGE_PATTERN);
+  t.deepEqual(getVerseBridge(line, 13), 
+    {
+      start: 13,
+      end: 14
+    }, "bridge 13a-14b");
 
-  // validate verse range
-  if (vsBridgeMatch) {
-    if (vsBridgeMatch[2]) {
-      t.is(vsBridgeMatch[2], "13", "bridge start matches");
-    }
-    if (vsBridgeMatch[3]) {
-      t.is(vsBridgeMatch[3], "14", "bridge end matches");
-    }
-  }
+  // These do not match
+  line = "x15a-y21b";
+  t.notRegex(line.trim(), VS_BRIDGE_PATTERN, "x15a-y21b does not match");
+  t.deepEqual(getVerseBridge(line, 15),
+    {
+      start: 15,
+      end: 15
+    }, "bridge x15a-y21b");
 
 })
