@@ -38,6 +38,11 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
       if (chapter.number == 1) {
         // For Chapter 1, marker must be followed by paragraph marker for styling in Paratext
         SFMtext += PARAGRAPH_MARKER + CRLF;
+      } else {
+        // For other chapters, also insert pargraph marker if there's no section header before verse 1
+        if (chapter?.content && chapter.content[0].type != "section") {
+          SFMtext += PARAGRAPH_MARKER + CRLF;
+        }
       }
       if(chapter.content){
         const sectionsAndVerses = chapter.content;
