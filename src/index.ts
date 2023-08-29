@@ -2,6 +2,7 @@
 // Copyright 2022 SIL International
 import * as program from 'commander';
 import * as fs from 'fs';
+import * as backTranslation from './backTranslation';
 import * as books from './books';
 import * as toolbox from './toolbox';
 import * as sfm from './sfm';
@@ -16,6 +17,7 @@ program
   .version(version, '-v, --version', 'output the current version')
   .description("Utilities to 1) parse Toolbox text files into JSON Objects. " +
     "2) take a JSON file and write out an .SFM file for Paratext.")
+    .option("-b, --back <path to single text file>", "path to back translation rtf text file")
     .option("-t, --text <path to single text file>", "path to a Toolbox text file")
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
     .option("-j, --json <jsonObject path>", "path to JSON Object file")
@@ -25,9 +27,12 @@ program
 
 // Debugging parameters
 const options = program.opts();
-const debugMode = false;
+const debugMode = true;
 if (debugMode) {
   console.log('Parameters:');
+  if (options.back) {
+    console.log(`Back Translation text file path: "${options.back}"`);
+  }
   if (options.text) {
     console.log(`Toolbox text file path: "${options.text}"`);
   }
@@ -60,6 +65,10 @@ if (options.text && !fs.existsSync(options.text)) {
   console.error("Can't open Toolbox text file " + options.text);
   process.exit(1);
 }
+if (options.back && !fs.existsSync(options.back)) {
+  console.error("Can't open back translation text file " + options.back);
+  process.exit(1);
+}
 if (options.directory && !fs.existsSync(options.directory)) {
   console.error("Can't open directory " + options.directory);
   process.exit(1);
@@ -74,8 +83,8 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 }
 
 // Validate one of the optional parameters is given
-if (!options.text && !options.directory && !options.json && !options.superDirectory) {
-  console.error("Need to pass another optional parameter [-t -d -j or -s]");
+if (!options.back && !options.text && !options.directory && !options.json && !options.superDirectory) {
+  console.error("Need to pass another optional parameter [-b -t -d -j or -s]");
   process.exit(1);
 }
 
@@ -86,6 +95,10 @@ if (!options.text && !options.directory && !options.json && !options.superDirect
 if (options.json) {
   // Make a JSON object into an SFM file
   processJSON(options.json);
+} else if (options.back) {
+  // Parse an rtf text file into a JSON object
+  const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
+  processBackText(options.back, bookObj);
 } else if (options.text) {
   // Parse a txt file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
@@ -141,6 +154,19 @@ function processDirectory(directory: string){
   }
 }
 
+/**
+ * Take an rtf text file and make a JSON bok type object
+ * @param {string} filepath - file path of a single rtf text file
+ * @param {books.bookType} bookObj - the book object to modify
+ * @returns {books.bookType} bookObj - modified book object
+ */
+function processBackText(filepath: string, bookObj: books.objType): books.objType {
+  const bookInfo = backTranslation.getBookAndChapter(filepath);
+  const currentChapter = bookInfo.chapterNumber;
+  const bookType = books.getBookByName(bookInfo.bookName);  
+  backTranslation.updateObj(bookObj, filepath, currentChapter, s, debugMode);
+  return bookObj;
+}
 
 /**
  * Take a text file and make a JSON book type object

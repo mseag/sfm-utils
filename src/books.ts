@@ -846,7 +846,8 @@ export function getBookByName(name: string): bookType {
 
     // NT
     case 'aMatthew':
-      bookName = 'Matthew';
+    case 'Matth':
+        bookName = 'Matthew';
       break;
     case 'aLuke':
       bookName = 'Luke';
