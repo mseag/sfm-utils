@@ -163,7 +163,32 @@ function processDirectory(directory: string){
 function processBackText(filepath: string, bookObj: books.objType): books.objType {
   const bookInfo = backTranslation.getBookAndChapter(filepath);
   const currentChapter = bookInfo.chapterNumber;
-  const bookType = books.getBookByName(bookInfo.bookName);  
+  const bookType = books.getBookByName(bookInfo.bookName);
+  if (bookInfo.bookName === "Placeholder") {
+    // Skip invalid book name
+    console.warn('Skipping invalid book name');
+    return bookObj;
+  } else if (currentChapter > bookType.chapters) {
+    // Skip invalid chapter number
+    console.warn('Skipping invalid chapter number ' + currentChapter + ' when ' +
+      bookObj.header.bookInfo.name + ' only has ' + bookType.chapters + ' chapters.');
+    return bookObj;
+  }
+
+  if (bookObj.content.length == 0) {
+    bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
+  }
+
+  if (!bookObj.content[currentChapter]) {
+    console.error(`${bookInfo.bookName} has insufficent chapters allocated to handle ${currentChapter}. Exiting`);
+    process.exit(1);
+  }
+  if (bookObj.content[currentChapter].type != "chapter") {
+    // Initialize current chapter
+    bookObj.content[currentChapter].type = "chapter";
+    bookObj.content[currentChapter].content = [];
+  }  
+
   backTranslation.updateObj(bookObj, filepath, currentChapter, s, debugMode);
   return bookObj;
 }

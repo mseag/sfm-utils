@@ -5,30 +5,28 @@ import * as path from 'path'
 import * as books from './books';
 const {UnRTF } = require("node-unrtf");
 import * as sfmConsole from './sfmConsole';
+import * as toolbox from './toolbox';
 
 /**
- * Regex for verses
+ * Regex for line containing verse(s)
  */
-export const VERSE_PATTERN = /[vV](\d)+(.+)/;
+export const VERSE_LINE_PATTERN = /[vV](\d)+(.+)/;
 
 /**
- * Information about the back translation text file based on the filename
+ * Regex for individual verses
  */
-export interface fileInfoType {
-  bookName: string;
-  chapterNumber: number;
-}
+export const VERSE_PATTERN = /(\d+)(.*)/;
 
 /**
  * Extract a book name and chapter number from the filename
  * @param {string} file - Path to the Toolbox text file
  * @returns {fileInfoType} - Object containing the book name and chapter number
  */
-export function getBookAndChapter(file: string) : fileInfoType {
+export function getBookAndChapter(file: string) : toolbox.fileInfoType {
   const filename = path.parse(file).base;
   const pattern = /Lem(\w+)(\d+)\.rtf/;
   const match = filename.match(pattern);
-  const obj: fileInfoType = {
+  const obj: toolbox.fileInfoType = {
     bookName: "Placeholder",
     chapterNumber: 0
   };
@@ -74,9 +72,22 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
   }
 
   backTranslationData.forEach(l => {
-    const verseMatch = l.match(VERSE_PATTERN);
-    if (verseMatch) {
+    const versesMatch = l.match(VERSE_LINE_PATTERN);
+    if (versesMatch) {
       // Process verses
+      let escapedLine = l.replace(/\s?[vV](\d+)\s?/g,'\\v$1');
+      let splitVerses = escapedLine.split(/\\v/);
+      splitVerses.forEach(verse => {
+        if (verse?.length > 0) {
+          let verseMatch = verse.match(VERSE_PATTERN);
+          if (verseMatch) {
+            console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
+          } else {
+            console.error('Unable to split ' + verse);
+          }
+        }
+      });
+
       console.log(l + '\n');
     } else {
       // Process section header
