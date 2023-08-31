@@ -124,14 +124,19 @@ if (options.json) {
   processDirectory(options.directory);
 } else if (options.backSuperDirectory) {
   // Make all book folders from a back translation super folder into SFM book files
-  processBackSuperDirectory(options.backSuperDirectory);  
+  processBackSuperDirectory(options.backSuperDirectory).then(script1 => {
+    // Extra write of SFM Console log to extra book file after all the async processing finished
+    s.writeLog();
+  });  
 } else if (options.superDirectory) {
   // Make all book folders from a super folder into SFM book files
   processSuperDirectory(options.superDirectory);
 }
 
 // Write SFM Console log to extra book file
-s.writeLog();
+if (!options.backSuperDirectory) {
+  s.writeLog();
+}
 
 console.log('All done processing');
 ////////////////////////////////////////////////////////////////////
