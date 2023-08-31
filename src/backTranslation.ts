@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path'
 import * as books from './books';
 const {UnRTF } = require("node-unrtf");
+import * as os from 'os';
 import * as sfmConsole from './sfmConsole';
 import * as toolbox from './toolbox';
 
@@ -55,45 +56,68 @@ export function getBookAndChapter(file: string) : toolbox.fileInfoType {
  */
 export async function updateObj(bookObj: books.objType, file: string, currentChapter: number,
   s: sfmConsole.SFMConsole, debugMode = false) {
-  const unRtf = new UnRTF("/usr/bin"); // Assumes Linux installed unrtf
+  const unRtfPath = os.type().startsWith('Linux') ? "/usr/bin" : ""; // Path for UnRtf
+  const unRtf = new UnRTF(unRtfPath);
   const options = {
     outputText: true
   };
+  let section_title_written = false;
+  let verseNum = 1; // Keep track of the current verse to write
 
   // Convert RTF to raw text, dropping the first 10 rows (9 rows rtf metadata + 1 row title). Lines split by newlines
   let backTranslation = await unRtf.convert(file, options);
   backTranslation = backTranslation.replace(/(\r?\n){2,}/g, '\r\n');
-  const backTranslationData = backTranslation.split(/\r?\n/).splice(10);
+  let backTranslationData = backTranslation.split(/\r?\n/).splice(9 + 1);
 
-  const SECTION_TITLE = 'title.';
-  if (backTranslationData[backTranslationData.length - 1] == '') {
-    // If last line empty, remove it
-    backTranslationData.pop();
-  }
-
-  backTranslationData.forEach(l => {
+  // Remove empty lines
+  backTranslationData = backTranslationData.filter(item => item);
+  backTranslationData.forEach(l => { 
     const versesMatch = l.match(VERSE_LINE_PATTERN);
     if (versesMatch) {
-      // Process verses
+      // Split verses into separate lines and process them
       let escapedLine = l.replace(/\s?[vV](\d+)\s?/g,'\\v$1');
       let splitVerses = escapedLine.split(/\\v/);
+      splitVerses = splitVerses.filter(item => item);
       splitVerses.forEach(verse => {
-        if (verse?.length > 0) {
-          let verseMatch = verse.match(VERSE_PATTERN);
-          if (verseMatch) {
-            console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
-          } else {
-            console.error('Unable to split ' + verse);
-          }
+        let verseMatch = verse.match(VERSE_PATTERN);
+        if (verseMatch) {
+          verseNum = verseMatch[1];
+
+          // Add a new verse
+          let unit: books.unitType = {
+            type: "verse",
+            text: verseMatch[2],
+            number: verseMatch[1]
+          };
+          bookObj.content[currentChapter].content.push(unit);
+          //console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
+        } else {
+          console.error('Unable to split ' + verse);
         }
       });
 
-      console.log(l + '\n');
+      //console.log(l + '\n');
     } else {
       // Process section header
-      console.log('header: ' + l + '\n');
+      let unit: books.unitType = {
+        type: "section",
+        text: l.trim(),
+        number: (section_title_written) ? 2 : 1
+      };
+      section_title_written = true;
+
+      // Add section
+      bookObj.content[currentChapter].content.push(unit);
+      //console.log('header: ' + l + '\n');
     }
 
   });
-  
+
+  // Sanity check on verse numbers for the current chapter
+  if (bookObj.header.bookInfo.versesInChapter &&
+      verseNum-1 > bookObj.header.bookInfo.versesInChapter[currentChapter]) {
+    s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter} has ` +
+      `${verseNum-1} verses, should be ${bookObj.header.bookInfo.versesInChapter[currentChapter]}.`);
+  }
+
 }

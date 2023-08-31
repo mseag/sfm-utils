@@ -44,6 +44,7 @@ sfm-utils.exe -h
 
 ## Developer Setup
 These utilities require Git, Node.js, and TypeScript (installed locally).
+Back translations in .rtf text files will also need UnRTF installed for converting the Rich Text format.
 
 ### Install Git
 Download and install Git
@@ -64,6 +65,15 @@ This will install [TypeScript](https://www.typescriptlang.org/) locally and can 
 
 ```bash
 npx tsc
+```
+
+### Install UnRTF for .rtf Files
+This is needed if the source files are .rtf Rich Text Format. Download at
+https://www.gnu.org/software/unrtf/#downloading
+
+or on Linux:
+```bash
+sudo apt install unrtf
 ```
 
 ### Compiling sfm-utils

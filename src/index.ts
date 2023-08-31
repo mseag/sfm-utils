@@ -160,7 +160,7 @@ function processDirectory(directory: string){
  * @param {books.bookType} bookObj - the book object to modify
  * @returns {books.bookType} bookObj - modified book object
  */
-function processBackText(filepath: string, bookObj: books.objType): books.objType {
+async function processBackText(filepath: string, bookObj: books.objType): books.objType {
   const bookInfo = backTranslation.getBookAndChapter(filepath);
   const currentChapter = bookInfo.chapterNumber;
   const bookType = books.getBookByName(bookInfo.bookName);
@@ -189,7 +189,17 @@ function processBackText(filepath: string, bookObj: books.objType): books.objTyp
     bookObj.content[currentChapter].content = [];
   }  
 
-  backTranslation.updateObj(bookObj, filepath, currentChapter, s, debugMode);
+  await backTranslation.updateObj(bookObj, filepath, currentChapter, s, debugMode);
+
+  // For single file parameter, write valid output
+  if (options.back && bookObj.header.bookInfo.code !== "000") {
+    // For testing, write out book JSON Object
+    writeJSON(bookObj);
+
+    //valid JSON Object to SFM
+    sfm.convertToSFM(bookObj, s);
+  }
+
   return bookObj;
 }
 
