@@ -19,10 +19,11 @@ program
     "2) take a JSON file and write out an .SFM file for Paratext.")
     .option("-b, --back <path to single text file>", "path to back translation rtf text file")
     .option("-t, --text <path to single text file>", "path to a Toolbox text file")
-    .option("-rd, --backDirectory <path to directory containing rtf text files>", "path to directory containing multiple RTF text files")
+    .option("-bd, --backDirectory <path to directory containing rtf text files>", "path to directory containing multiple RTF text files")
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
     .option("-j, --json <jsonObject path>", "path to JSON Object file")
     .option("-p, --projectName <name>", "name of the Paratext project>")
+    .option("-bs, --backSuperDirectory <path to a directory containing directories for each book in a project>", "back translation - path to a directory containing directories for each book in a project")
     .option("-s, --superDirectory <path to a directory containing directories for each book in a project>", "path to a directory containing directories for each book in a project")
   .parse(process.argv);
 
@@ -49,8 +50,11 @@ if (debugMode) {
   if (options.projectName) {
     console.log(`Project Name: "${options.projectName}`);
   }
+  if (options.backSuperDirectory){
+    console.log(`Back Translation super directory: "${options.backSuperDirectory}`);
+  }
   if (options.superDirectory){
-    console.log(`Project Directory: "${options.projectName}`);
+    console.log(`Project Directory: "${options.superDirectory}`);
   }
   console.log('\n');
 }
@@ -92,8 +96,8 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 
 // Validate one of the optional parameters is given
 if (!options.back && !options.text && !options.backDirectory && !options.directory && 
-    !options.json && !options.superDirectory) {
-  console.error("Need to pass another optional parameter [-b -t -rd -d -j or -s]");
+    !options.json && !options.backSuperDirectory && !options.superDirectory) {
+  console.error("Need to pass another optional parameter [-b -t -bd -d -j -bs or -s]");
   process.exit(1);
 }
 
@@ -118,6 +122,9 @@ if (options.json) {
 } else if (options.directory) {
   // Convert the text files in a directory into an SFM book file
   processDirectory(options.directory);
+} else if (options.backSuperDirectory) {
+  // Make all book folders from a back translation super folder into SFM book files
+  processBackSuperDirectory(options.backSuperDirectory);  
 } else if (options.superDirectory) {
   // Make all book folders from a super folder into SFM book files
   processSuperDirectory(options.superDirectory);
@@ -129,6 +136,18 @@ s.writeLog();
 ////////////////////////////////////////////////////////////////////
 // Processor functions
 ////////////////////////////////////////////////////////////////////
+
+/**
+ * Take a project directory with a directory inside for each book, and make an SFM file for each book
+ * @param {string} backSuperDirectory - path to a directory containing directories for each book in a project
+ */
+async function processBackSuperDirectory(backSuperDirectory: string){
+  const bookDirectories: string[] = [];
+  fileAssistant.getBookDirectories(backSuperDirectory, bookDirectories);
+  for(let i=0; i<bookDirectories.length; i++) {
+    await processBackDirectory(bookDirectories[i]);
+  };
+}
 
 /**
  * Take a project directory with a directory inside for each book, and make an SFM file for each book

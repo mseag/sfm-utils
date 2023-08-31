@@ -850,36 +850,63 @@ export function getBookByName(name: string): bookType {
         bookName = 'Matthew';
       break;
     case 'aLuke':
+    case 'luke':
       bookName = 'Luke';
       break;
     case 'aActs':
       bookName = 'Acts';
       break;
+    case 'Rom':
+      bookName = 'Romans';
+      break;
     case 'I Corinthians':
     case '1Corinthians':
     case 'x1Corinthians':
+    case '1 Cor':  
       bookName = "1 Corinthians";
       break;
     case '2Corinthians':
+    case '2 Cor':
       bookName = '2 Corinthians';
       break;
+    case 'Gal':
+      bookName = 'Galatians';
+      break;
+    case 'Eph':
+      bookName = 'Ephesians';
+      break;
+    case 'Col':
+      bookName = 'Colossians';
+      break;
+    case 'Phil':
+      bookName = 'Philippians';
+      break;  
     case '1Thessalonians':
+    case '1 Thess':       
       bookName = '1 Thessalonians';
       break;
     case '2Thessalonians':
+    case '2 Thess':
       bookName = '2 Thessalonians';
       break;
     case '1Timothy':
+    case '1 Tim':  
       bookName = '1 Timothy';
       break;
     case '2Timothy':
+    case '2 Tim':
       bookName = '2 Timothy';
       break;
     case '1Peter':
+    case '1 Pet':  
       bookName = '1 Peter';
       break;
     case '2Peter':
+    case '2 Pet':
       bookName = '2 Peter';
+      break;
+    case 'Hebrew':
+      bookName = 'Hebrews';
       break;
     case '1John':
       bookName = '1 John';
@@ -888,8 +915,11 @@ export function getBookByName(name: string): bookType {
       bookName = '2 John';
       break;
     case '3John':
-        bookName = '3 John';
-        break;
+      bookName = '3 John';
+      break;
+    case 'Rev':
+      bookName = 'Revelation';
+      break;
     default:
       bookName = name;
   }

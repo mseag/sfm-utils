@@ -25,7 +25,7 @@ export const VERSE_PATTERN = /(\d+)(.*)/;
  */
 export function getBookAndChapter(file: string) : toolbox.fileInfoType {
   const filename = path.parse(file).base;
-  const pattern = /Lem(\w+)(\d+)\.rtf/;
+  const pattern = /(Lem|lem)?(\d*\D+)(\d+)\D?\.rtf/;
   const match = filename.match(pattern);
   const obj: toolbox.fileInfoType = {
     bookName: "Placeholder",
@@ -33,10 +33,10 @@ export function getBookAndChapter(file: string) : toolbox.fileInfoType {
   };
   if (match) {
     // Fix any typo in book name
-    const bookName = books.getBookByName(match[1]).name;
+    const bookName = books.getBookByName(match[2].trim()).name;
     if (bookName !== "Placeholder") {
       obj.bookName = bookName;
-      obj.chapterNumber = parseInt(match[2]);
+      obj.chapterNumber = parseInt(match[3]);
     }
   } else {
     console.warn('Unable to determine info from: ' + filename);
@@ -64,27 +64,31 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
   let section_title_written = false;
   let verseNum = 1; // Keep track of the current verse to write
 
-  // Convert RTF to raw text, dropping the first 10 rows (9 rows rtf metadata + 1 row title). Lines split by newlines
+  // Convert RTF to raw text. Lines split by newlines
   let backTranslation = await unRtf.convert(file, options);
   backTranslation = backTranslation.replace(/(\r?\n){2,}/g, '\r\n');
-  let backTranslationData = backTranslation.split(/\r?\n/).splice(9 + 1);
+  let backTranslationData = backTranslation.split(/\r?\n/);
 
-  // Remove empty lines
+  // Remove empty lines, along with rtf metadata and title
   backTranslationData = backTranslationData.filter(item => item);
   backTranslationData.forEach(l => { 
+    if (l.startsWith('###') || l.startsWith('AUTHOR:') || l.startsWith('---') || l.startsWith('Lem')) {
+      // Skip rtf metadata and title
+      return;
+    }
     const versesMatch = l.match(VERSE_LINE_PATTERN);
     if (versesMatch) {
       // Split verses into separate lines and process them
-      let escapedLine = l.replace(/\s?[vV](\d+)\s?/g,'\\v$1');
+      const escapedLine = l.replace(/\s?[vV](\d+)\s?/g,'\\v$1');
       let splitVerses = escapedLine.split(/\\v/);
       splitVerses = splitVerses.filter(item => item);
       splitVerses.forEach(verse => {
-        let verseMatch = verse.match(VERSE_PATTERN);
+        const verseMatch = verse.match(VERSE_PATTERN);
         if (verseMatch) {
           verseNum = verseMatch[1];
 
           // Add a new verse
-          let unit: books.unitType = {
+          const unit: books.unitType = {
             type: "verse",
             text: verseMatch[2],
             number: verseMatch[1]
@@ -92,14 +96,15 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
           bookObj.content[currentChapter].content.push(unit);
           //console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
         } else {
-          console.error('Unable to split ' + verse);
+          console.error('Error processing ' + bookObj.header.bookInfo.name + ' Ch: ' + currentChapter + 
+            ', verse  ' + verseNum + ', verse is ' + verse);
         }
       });
 
       //console.log(l + '\n');
     } else {
       // Process section header
-      let unit: books.unitType = {
+      const unit: books.unitType = {
         type: "section",
         text: l.trim(),
         number: (section_title_written) ? 2 : 1
