@@ -6,7 +6,7 @@ import * as path from 'path';
 /**
  * Recursively push to an array all the txt file paths from inside a given directory
  * @param { string } directory - a path to a directory to recurse through
- * @param { string[] } fileArray - a string array to fill with the paths of txt files
+ * @param { string[] } fileArray - a string array to fill with the paths of txt/rtf files
  */
 export function getTextFilesInside(directory: string, fileArray: string[]){
   fs.readdirSync(directory).forEach(function(item){
@@ -14,7 +14,7 @@ export function getTextFilesInside(directory: string, fileArray: string[]){
     if (fs.statSync(absolutePath).isDirectory()){
       return getTextFilesInside(absolutePath, fileArray);
     } else{
-      if(item.substring(item.lastIndexOf('.')+1, item.length) === 'txt'){
+      if (item.substring(item.lastIndexOf('.')+1, item.length).match(/txt|rtf/)) {
         fileArray.push(absolutePath);
       }
       return;

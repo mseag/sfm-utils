@@ -19,6 +19,7 @@ program
     "2) take a JSON file and write out an .SFM file for Paratext.")
     .option("-b, --back <path to single text file>", "path to back translation rtf text file")
     .option("-t, --text <path to single text file>", "path to a Toolbox text file")
+    .option("-rd, --backDirectory <path to directory containing rtf text files>", "path to directory containing multiple RTF text files")
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
     .option("-j, --json <jsonObject path>", "path to JSON Object file")
     .option("-p, --projectName <name>", "name of the Paratext project>")
@@ -35,6 +36,9 @@ if (debugMode) {
   }
   if (options.text) {
     console.log(`Toolbox text file path: "${options.text}"`);
+  }
+  if (options.backDirectory) {
+    console.log(`RTF files path: "${options.backDirectory}"`);
   }
   if (options.directory) {
     console.log(`Toolbox files path: "${options.directory}"`);
@@ -69,6 +73,10 @@ if (options.back && !fs.existsSync(options.back)) {
   console.error("Can't open back translation text file " + options.back);
   process.exit(1);
 }
+if (options.backDirectory && !fs.existsSync(options.backDirectory)) {
+  console.error("Can't open back translation directory " + options.backDirectory);
+  process.exit(1);
+}
 if (options.directory && !fs.existsSync(options.directory)) {
   console.error("Can't open directory " + options.directory);
   process.exit(1);
@@ -83,8 +91,9 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 }
 
 // Validate one of the optional parameters is given
-if (!options.back && !options.text && !options.directory && !options.json && !options.superDirectory) {
-  console.error("Need to pass another optional parameter [-b -t -d -j or -s]");
+if (!options.back && !options.text && !options.backDirectory && !options.directory && 
+    !options.json && !options.superDirectory) {
+  console.error("Need to pass another optional parameter [-b -t -rd -d -j or -s]");
   process.exit(1);
 }
 
@@ -103,6 +112,9 @@ if (options.json) {
   // Parse a txt file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   processText(options.text, bookObj);
+} else if (options.backDirectory) {
+  // Convert the RTF text files in a directory into an SFM book file
+  processBackDirectory(options.backDirectory);  
 } else if (options.directory) {
   // Convert the text files in a directory into an SFM book file
   processDirectory(options.directory);
@@ -130,6 +142,28 @@ function processSuperDirectory(superDirectory: string){
   });
 }
 
+/**
+ * Take a directory with RTF text chapter files and make an SFM book file
+ * @param {string} directory - path to directory containing text files
+ */
+async function processBackDirectory(directory: string){
+  let bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
+  // Get all the text files in the directory and then process them
+  const filesToParse: string[] = [];
+  fileAssistant.getTextFilesInside(directory, filesToParse);
+  for (let i=0; i<filesToParse.length; i++) {
+    bookObj = await processBackText(filesToParse[i], bookObj);
+  };
+
+  // Directory processed, so write valid output
+  if (bookObj.header.bookInfo.code !== "000") {
+    // For testing, write out book JSON Object
+    writeJSON(bookObj);
+
+    // valid JSON Object to SFM
+    sfm.convertToSFM(bookObj, s);
+  }
+}
 
 /**
  * Take a directory with toolbox text chapter files and make an SFM book file
@@ -160,7 +194,7 @@ function processDirectory(directory: string){
  * @param {books.bookType} bookObj - the book object to modify
  * @returns {books.bookType} bookObj - modified book object
  */
-async function processBackText(filepath: string, bookObj: books.objType): books.objType {
+async function processBackText(filepath: string, bookObj: books.objType): Promise<books.objType> {
   const bookInfo = backTranslation.getBookAndChapter(filepath);
   const currentChapter = bookInfo.chapterNumber;
   const bookType = books.getBookByName(bookInfo.bookName);
