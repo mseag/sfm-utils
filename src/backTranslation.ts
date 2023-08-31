@@ -96,8 +96,13 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
           bookObj.content[currentChapter].content.push(unit);
           //console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
         } else {
-          console.error('Error processing ' + bookObj.header.bookInfo.name + ' Ch: ' + currentChapter + 
-            ', verse  ' + verseNum + ', verse is ' + verse);
+          // Parsing error. Possibly section header split a verse, so join with the last verse
+          let contentLength = bookObj.content[currentChapter].content.length;
+          if (contentLength > 1) {
+            bookObj.content[currentChapter].content[contentLength-2].text += ' (split section) ' + verse;
+          }
+          s.log('warn', `Stray verse, appending to previous verse in ${bookObj.header.bookInfo.name} ` +
+            `${currentChapter}:${verseNum} with: ${verse}`);
         }
       });
 
