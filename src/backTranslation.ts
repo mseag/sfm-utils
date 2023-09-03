@@ -14,9 +14,9 @@ import * as toolbox from './toolbox';
 export const VERSE_LINE_PATTERN = /[vV](\d)+(.+)/;
 
 /**
- * Regex for individual verses
+ * Regex for verse/multiple verses and text
  */
-export const VERSE_PATTERN = /(\d+)(.*)/;
+export const VERSE_PATTERN = /(\d+)-?(\d+)?\s?(.*)/;
 
 /**
  * Extract a book name and chapter number from the filename
@@ -85,14 +85,18 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
       splitVerses.forEach(verse => {
         const verseMatch = verse.match(VERSE_PATTERN);
         if (verseMatch) {
-          verseNum = verseMatch[1];
+          verseNum = verseMatch[2] ? verseMatch[2] : verseMatch[1];
 
           // Add a new verse
           const unit: books.unitType = {
             type: "verse",
-            text: verseMatch[2],
+            text: verseMatch[3],
             number: verseMatch[1]
           };
+          if (verseMatch[2]) {
+            unit.bridgeEnd = verseMatch[2];
+          }
+
           bookObj.content[currentChapter].content.push(unit);
           //console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
         } else {
@@ -128,6 +132,12 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
       verseNum-1 > bookObj.header.bookInfo.versesInChapter[currentChapter]) {
     s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter} has ` +
       `${verseNum-1} verses, should be ${bookObj.header.bookInfo.versesInChapter[currentChapter]}.`);
+  }
+
+  if (bookObj.header.bookInfo.versesInChapter &&
+      bookObj.header.bookInfo.versesInChapter[currentChapter] != verseNum) {
+    s.log('warn', `${bookObj.header.bookInfo.name} ${currentChapter} expected ` +
+      `${bookObj.header.bookInfo.versesInChapter[currentChapter]} verses but got ${verseNum}`); 
   }
 
 }

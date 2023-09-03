@@ -660,8 +660,8 @@ export const bookInfo: bookType[] = [
     name: "3 John",
     num: 65,
     chapters: 1,
-    versesInChapter: [0, 14],
-    verses: 14
+    versesInChapter: [0, 15],
+    verses: 15
   },
   {
     code: "JUD",
