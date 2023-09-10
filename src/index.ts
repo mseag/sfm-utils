@@ -220,7 +220,7 @@ function processDirectory(directory: string){
  * @returns {books.bookType} bookObj - modified book object
  */
 async function processBackText(filepath: string, bookObj: books.objType): Promise<books.objType> {
-  const bookInfo = backTranslation.getBookAndChapter(filepath);
+  const bookInfo = backTranslation.getBookAndChapter(filepath, options.projectName);
   const currentChapter = bookInfo.chapterNumber;
   const bookType = books.getBookByName(bookInfo.bookName);
   if (bookInfo.bookName === "Placeholder") {

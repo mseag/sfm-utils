@@ -21,11 +21,13 @@ export const VERSE_PATTERN = /(\d+)-?(\d+)?\s?(.*)/;
 /**
  * Extract a book name and chapter number from the filename
  * @param {string} file - Path to the Toolbox text file
+ * @param {string} projectName - Name of the project (expected at the start of the filenames)
  * @returns {fileInfoType} - Object containing the book name and chapter number
  */
-export function getBookAndChapter(file: string) : toolbox.fileInfoType {
+export function getBookAndChapter(file: string, projectName: string) : toolbox.fileInfoType {
   const filename = path.parse(file).base;
-  const pattern = /(Lem|lem)?(\d*\D+)(\d+)\D?\.rtf/;
+  const patternFormatStr = `(${projectName}|${projectName.toLowerCase()})?(\\d*\\D+)(\\d+)\\D?\\.rtf`;
+  const pattern = new RegExp(patternFormatStr);
   const match = filename.match(pattern);
   const obj: toolbox.fileInfoType = {
     bookName: "Placeholder",
