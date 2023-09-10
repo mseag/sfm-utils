@@ -55,7 +55,11 @@ export function getBookAndChapter(file: string) : toolbox.fileInfoType {
  * @param {boolean} debugMode - Whether to print additional logging
  */
 export async function updateObj(bookObj: books.objType, file: string, currentChapter: number,
-  s: sfmConsole.SFMConsole, debugMode = false) {
+    s: sfmConsole.SFMConsole, debugMode = false) {
+  if (!os.type().startsWith('Linux')) {
+    console.error("unRtf needs to run on Linux");
+    process.exit(1);
+  }  
   const unRtfPath = os.type().startsWith('Linux') ? "/usr/bin" : ""; // Path for UnRtf
   const unRtf = new UnRTF(unRtfPath);
   const options = {

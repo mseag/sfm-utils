@@ -26,6 +26,11 @@ Parameters
     -d [Directory of Toolbox text files for a single book (one chapter per file)]
     -j [JSON file representing a single book - used for testing conversion to SFM]
     -s [Directory of directories (each subdirectory is a separate book)]
+
+    Optional for processing rich text (rtf) files - one of:
+    -b  [A single rtf text file (one chapter of a book)]
+    -bd [Directory of rtf text files for a single book (one chapter per file)]
+    -bs [Directory of directories (each subdirectory is a separate book)]
 ```
 
 ### Help
@@ -68,10 +73,10 @@ npx tsc
 ```
 
 ### Install UnRTF for .rtf Files
-This is needed if the source files are .rtf Rich Text Format. Download at
+This is needed if the source files are .rtf Rich Text Format, and currently only works on Linux. Download at
 https://www.gnu.org/software/unrtf/#downloading
 
-or on Linux:
+or on command line:
 ```bash
 sudo apt install unrtf
 ```
