@@ -1,12 +1,12 @@
 // Copyright 2023 SIL International
 // Types and utilities for handling back translation rtf text file
-import * as fs from 'fs';
 import * as path from 'path'
-import * as books from './books';
+import * as books from './books.js';
+import require from './cjs-require.js';
 const {UnRTF } = require("node-unrtf");
 import * as os from 'os';
-import * as sfmConsole from './sfmConsole';
-import * as toolbox from './toolbox';
+import * as sfmConsole from './sfmConsole.js';
+import * as toolbox from './toolbox.js';
 
 /**
  * Regex for line containing verse(s)
@@ -61,7 +61,7 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
   if (!os.type().startsWith('Linux')) {
     console.error("unRtf needs to run on Linux");
     process.exit(1);
-  }  
+  }
   const unRtfPath = os.type().startsWith('Linux') ? "/usr/bin" : ""; // Path for UnRtf
   const unRtf = new UnRTF(unRtfPath);
   const options = {
@@ -77,7 +77,7 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
 
   // Remove empty lines, along with rtf metadata and title
   backTranslationData = backTranslationData.filter(item => item);
-  backTranslationData.forEach(l => { 
+  backTranslationData.forEach(l => {
     if (l.startsWith('###') || l.startsWith('AUTHOR:') || l.startsWith('---') || l.startsWith('Lem')) {
       // Skip rtf metadata and title
       return;
@@ -107,7 +107,7 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
           //console.log('verse ' + verseMatch[1] + ': ' + verseMatch[2]);
         } else {
           // Parsing error. Possibly section header split a verse, so join with the last verse
-          let contentLength = bookObj.content[currentChapter].content.length;
+          const contentLength = bookObj.content[currentChapter].content.length;
           if (contentLength > 1) {
             bookObj.content[currentChapter].content[contentLength-2].text += ' (split section) ' + verse;
           }
@@ -143,7 +143,7 @@ export async function updateObj(bookObj: books.objType, file: string, currentCha
   if (bookObj.header.bookInfo.versesInChapter &&
       bookObj.header.bookInfo.versesInChapter[currentChapter] != verseNum) {
     s.log('warn', `${bookObj.header.bookInfo.name} ${currentChapter} expected ` +
-      `${bookObj.header.bookInfo.versesInChapter[currentChapter]} verses but got ${verseNum}`); 
+      `${bookObj.header.bookInfo.versesInChapter[currentChapter]} verses but got ${verseNum}`);
   }
 
 }

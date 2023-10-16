@@ -1,7 +1,7 @@
 // Copyright 2022 SIL International
 // Utilities for converting a JSON file to USFM
-import * as books from './books';
-import * as sfmConsole from './sfmConsole';
+import * as books from './books.js';
+import * as sfmConsole from './sfmConsole.js';
 import * as fs from 'fs';
 
 /**
@@ -39,7 +39,7 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
         // For Chapter 1, marker must be followed by paragraph marker for styling in Paratext
         SFMtext += PARAGRAPH_MARKER + CRLF;
       } else {
-        // For other chapters, also insert pargraph marker if there's no section header before verse 1
+        // For other chapters, also insert paragraph marker if there's no section header before verse 1
         if (chapter?.content && chapter.content[0].type != "section") {
           SFMtext += PARAGRAPH_MARKER + CRLF;
         }

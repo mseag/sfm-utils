@@ -1,12 +1,12 @@
 // Copyright 2023 SIL International
 // Utility to write to console along with "Extra Book A" SFM file.
-import * as books from './books';
+import * as books from './books.js';
 import * as fs from 'fs';
 
 /**
  * Console level
  */
-export type consoleType = 
+export type consoleType =
   "warn" | "info" | "log" | "error";
 
 export type consoleUnitType = {
@@ -49,7 +49,7 @@ export class SFMConsole {
         console.error(text);
         break;
       default:
-        console.error(`SFMConsole(): Unxepected write mode: ${mode}\n`);
+        console.error(`SFMConsole(): Unexpected write mode: ${mode}\n`);
     }
 
     const unit: consoleUnitType = {
@@ -72,7 +72,7 @@ export class SFMConsole {
     if (fs.existsSync(LOGFILE)) {
       console.warn("Overwriting log file: " + LOGFILE);
     }
-    
+
     const HEADER = '\\id ' + this.extraBook.code + ' - ' + this.projectName + '\n';
     let content = HEADER;
     this.loggingObj.forEach(l => {

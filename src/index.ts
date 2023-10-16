@@ -1,20 +1,21 @@
 #!/usr/bin/env node
-// Copyright 2022 SIL International
-import * as program from 'commander';
+// Copyright 2022-2023 SIL International
+import { CommanderError, program } from 'commander';
 import * as fs from 'fs';
-import * as backTranslation from './backTranslation';
-import * as books from './books';
-import * as toolbox from './toolbox';
-import * as sfm from './sfm';
-import * as sfmConsole from './sfmConsole';
-import * as fileAssistant from './fileAssistant';
-const {version} = require('../package.json');
+import * as backTranslation from './backTranslation.js';
+import * as books from './books.js';
+import * as toolbox from './toolbox.js';
+import require from './cjs-require.js';
+import * as sfm from './sfm.js';
+import * as sfmConsole from './sfmConsole.js';
+import * as fileAssistant from './fileAssistant.js';
+//const {version} = require('../package.json');
 
 ////////////////////////////////////////////////////////////////////
 // Get parameters
 ////////////////////////////////////////////////////////////////////
 program
-  .version(version, '-v, --version', 'output the current version')
+//  .version(version, '-v, --version', 'output the current version')
   .description("Utilities to 1) parse Toolbox text files into JSON Objects. " +
     "2) take a JSON file and write out an .SFM file for Paratext.")
     .option("-b, --back <path to single text file>", "path to back translation rtf text file")
@@ -25,7 +26,15 @@ program
     .option("-p, --projectName <name>", "name of the Paratext project>")
     .option("-bs, --backSuperDirectory <path to a directory containing directories for each book in a project>", "back translation - path to a directory containing directories for each book in a project")
     .option("-s, --superDirectory <path to a directory containing directories for each book in a project>", "path to a directory containing directories for each book in a project")
-  .parse(process.argv);
+    .exitOverride();
+try {
+  program.parse();
+} catch (error: unknown) {
+  if (error instanceof CommanderError) {
+    console.error(error.message);
+  }
+  process.exit(1);
+}
 
 // Debugging parameters
 const options = program.opts();
@@ -95,7 +104,7 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 }
 
 // Validate one of the optional parameters is given
-if (!options.back && !options.text && !options.backDirectory && !options.directory && 
+if (!options.back && !options.text && !options.backDirectory && !options.directory &&
     !options.json && !options.backSuperDirectory && !options.superDirectory) {
   console.error("Need to pass another optional parameter [-b -t -bd -d -j -bs or -s]");
   process.exit(1);
@@ -118,7 +127,7 @@ if (options.json) {
   processText(options.text, bookObj);
 } else if (options.backDirectory) {
   // Convert the RTF text files in a directory into an SFM book file
-  processBackDirectory(options.backDirectory);  
+  processBackDirectory(options.backDirectory);
 } else if (options.directory) {
   // Convert the text files in a directory into an SFM book file
   processDirectory(options.directory);
@@ -127,7 +136,7 @@ if (options.json) {
   processBackSuperDirectory(options.backSuperDirectory).then(script1 => {
     // Extra write of SFM Console log to extra book file after all the async processing finished
     s.writeLog();
-  });  
+  });
 } else if (options.superDirectory) {
   // Make all book folders from a super folder into SFM book files
   processSuperDirectory(options.superDirectory);
@@ -152,7 +161,7 @@ async function processBackSuperDirectory(backSuperDirectory: string){
   fileAssistant.getBookDirectories(backSuperDirectory, bookDirectories);
   for(let i=0; i<bookDirectories.length; i++) {
     await processBackDirectory(bookDirectories[i]);
-  };
+  }
 }
 
 /**
@@ -178,7 +187,7 @@ async function processBackDirectory(directory: string){
   fileAssistant.getTextFilesInside(directory, filesToParse);
   for (let i=0; i<filesToParse.length; i++) {
     bookObj = await processBackText(filesToParse[i], bookObj);
-  };
+  }
 
   // Directory processed, so write valid output
   if (bookObj.header.bookInfo.code !== "000") {
@@ -239,14 +248,14 @@ async function processBackText(filepath: string, bookObj: books.objType): Promis
   }
 
   if (!bookObj.content[currentChapter]) {
-    console.error(`${bookInfo.bookName} has insufficent chapters allocated to handle ${currentChapter}. Exiting`);
+    console.error(`${bookInfo.bookName} has insufficient chapters allocated to handle ${currentChapter}. Exiting`);
     process.exit(1);
   }
   if (bookObj.content[currentChapter].type != "chapter") {
     // Initialize current chapter
     bookObj.content[currentChapter].type = "chapter";
     bookObj.content[currentChapter].content = [];
-  }  
+  }
 
   await backTranslation.updateObj(bookObj, filepath, currentChapter, s, debugMode);
 
@@ -288,7 +297,7 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
   }
 
   if (!bookObj.content[currentChapter]) {
-    console.error(`${bookInfo.bookName} has insufficent chapters allocated to handle ${currentChapter}. Exiting`);
+    console.error(`${bookInfo.bookName} has insufficient chapters allocated to handle ${currentChapter}. Exiting`);
     process.exit(1);
   }
   if (bookObj.content[currentChapter].type != "chapter") {
@@ -316,10 +325,12 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
  * Take a JSON file and make an SFM file
  * @param {string} filepath - file path of a single JSON file
  */
-function processJSON(filepath: string){
+async function processJSON(filepath: string){
   let bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   try {
+    console.log(`cwd: ${process.cwd()}`);
     bookObj = require(filepath);
+    //bookObj = await import(filepath, {assert: {type: "json"}});
   } catch (e) {
     console.error("Invalid JSON file. Exiting")
     process.exit(1);

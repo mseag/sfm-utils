@@ -2,8 +2,8 @@
 // Types and utilities for handling Toolbox text file
 import * as fs from 'fs';
 import * as path from 'path'
-import * as books from './books';
-import * as sfmConsole from './sfmConsole';
+import * as books from './books.js';
+import * as sfmConsole from './sfmConsole.js';
 
 /**
  * Enum to know what mode to parse the Toolbox file
@@ -86,7 +86,7 @@ export interface fileInfoType {
  * @param {number} verseNum - current verse number
  */
 export function getVerseBridge(line: string, verseNum: number) : bridgeType {
-  let bridge: bridgeType = {
+  const bridge: bridgeType = {
     start: verseNum,
     end: verseNum
   };
