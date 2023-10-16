@@ -111,8 +111,13 @@ export function getVerseBridge(line: string, verseNum: number) : bridgeType {
  */
 export function getBookAndChapter(file: string) : fileInfoType {
   const filename = path.parse(file).base;
+
   const pattern = /([0-9A-Za-z]+)_(Ch|ch)?(\d+)[_\s]?.*\.txt/;
   const match = filename.match(pattern);
+
+  const patternSFM = /([0-9]{2})([0-9A-Za-z]{3}).+\.(SFM|sfm)/;
+  const matchSFM = filename.match(patternSFM);
+
   const obj: fileInfoType = {
     bookName: "Placeholder",
     chapterNumber: 0
@@ -123,6 +128,14 @@ export function getBookAndChapter(file: string) : fileInfoType {
     if (bookName !== "Placeholder") {
       obj.bookName = bookName;
       obj.chapterNumber = parseInt(match[3]);
+    }
+   // Attempt to parse SFM file name
+  } else if (matchSFM) {
+    const bookCode = matchSFM[2] as books.CodeType;
+    const bookName = books.getBookByCode(bookCode).name;
+    if (bookName !== "Placeholder") {
+      obj.bookName = bookName;
+      // obj.chapterNumber TODO
     }
   } else {
     console.warn('Unable to determine info from: ' + filename);

@@ -19,6 +19,7 @@ program
   .description("Utilities to 1) parse Toolbox text files into JSON Objects. " +
     "2) take a JSON file and write out an .SFM file for Paratext.")
     .option("-b, --back <path to single text file>", "path to back translation rtf text file")
+    .option("-f, --sfm <path to single SFM file>", "path to SFM file")
     .option("-t, --text <path to single text file>", "path to a Toolbox text file")
     .option("-bd, --backDirectory <path to directory containing rtf text files>", "path to directory containing multiple RTF text files")
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
@@ -43,6 +44,9 @@ if (debugMode) {
   console.log('Parameters:');
   if (options.back) {
     console.log(`Back Translation text file path: "${options.back}"`);
+  }
+  if (options.sfm) {
+    console.log(`SFM file path: "${options.sfm}"`);
   }
   if (options.text) {
     console.log(`Toolbox text file path: "${options.text}"`);
@@ -86,6 +90,10 @@ if (options.back && !fs.existsSync(options.back)) {
   console.error("Can't open back translation text file " + options.back);
   process.exit(1);
 }
+if (options.sfm && !fs.existsSync(options.sfm)) {
+  console.error("Can't open SFM file " + options.sfm);
+  process.exit(1);
+}
 if (options.backDirectory && !fs.existsSync(options.backDirectory)) {
   console.error("Can't open back translation directory " + options.backDirectory);
   process.exit(1);
@@ -104,7 +112,7 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 }
 
 // Validate one of the optional parameters is given
-if (!options.back && !options.text && !options.backDirectory && !options.directory &&
+if (!options.back && !options.sfm && !options.text && !options.backDirectory && !options.directory &&
     !options.json && !options.backSuperDirectory && !options.superDirectory) {
   console.error("Need to pass another optional parameter [-b -t -bd -d -j -bs or -s]");
   process.exit(1);
@@ -121,6 +129,9 @@ if (options.json) {
   // Parse an rtf text file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   processBackText(options.back, bookObj);
+} else if (options.sfm) {
+  const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
+  processText(options.sfm, bookObj);
 } else if (options.text) {
   // Parse a txt file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
@@ -271,6 +282,25 @@ async function processBackText(filepath: string, bookObj: books.objType): Promis
   return bookObj;
 }
 
+function processSFMText(filepath: string, bookObj: books.objType): books.objType {
+  const bookInfo = toolbox.getBookAndChapter(filepath);
+
+  if (bookObj.content.length == 0) {
+    bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
+  }
+  const currentChapter = 0; // TODO fix
+  if (!bookObj.content[currentChapter]) {
+    console.error(`${bookInfo.bookName} has insufficent chapters allocated to handle ${currentChapter}. Exiting`);
+    process.exit(1);
+  }
+  if (bookObj.content[currentChapter].type != "chapter") {
+    // Initialize current chapter
+    bookObj.content[currentChapter].type = "chapter";
+    bookObj.content[currentChapter].content = [];
+  }
+
+  return bookObj;
+}
 /**
  * Take a text file and make a JSON book type object
  * @param {string} filepath - file path of a single text file
