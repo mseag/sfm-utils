@@ -1,5 +1,5 @@
 // Copyright 2022 SIL International
-// Utilites for handling file paths
+// Utilities for handling file paths
 import * as fs from 'fs';
 import * as path from 'path';
 

@@ -15,7 +15,7 @@
       ],
       "args": [
         "-p", "slt",
-        //"-j", "C:\\src\\sfm-utils\\samples\\56TIT.json"
+        "-j", "\\samples\\56TIT.json"
       ]
     },
     {
