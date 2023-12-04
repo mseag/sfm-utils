@@ -4,6 +4,7 @@ import { CommanderError, program } from 'commander';
 import * as fs from 'fs';
 import * as backTranslation from './backTranslation.js';
 import * as books from './books.js';
+import * as path from 'path';
 import * as toolbox from './toolbox.js';
 import require from './cjs-require.js';
 import * as sfm from './sfm.js';
@@ -345,6 +346,16 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
 
     //valid JSON Object to SFM
     sfm.convertToSFM(bookObj, s);
+  } else if (options.sfm && bookObj.header.bookInfo.code !== "000") {
+    const basename = path.parse(path.basename(filepath)).name;
+
+    // For testing, write out book JSON Object
+    writeJSON(bookObj, basename + '.json');
+
+    // Move JSON name
+
+    // Write JSON Object to TSV file
+    sfm.convertToTSV(bookObj, basename);
   }
 
   return bookObj;
@@ -380,18 +391,21 @@ async function processJSON(filepath: string){
 
 /**
  * Write JSON file (for testing purposes).
- * Filename will be [##][XYZ][Project name].json
+ * If filename not provided, it will be [##][XYZ][Project name].json
  * ## - 2-digit book number
  * XYZ - 3 character book code
  * Project name - Paratext project name
  * @param {books.bookType} bookObj - the book object to write to file
+ * @param {filename} string - filename to write.
  */
-function writeJSON(bookObj: books.objType) {
+function writeJSON(bookObj: books.objType, filename : string = '') {
   if (debugMode) {
     // Add leading 0 if book number < 10
     const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
-    const filename = padZero + bookObj.header.bookInfo.num +
+    if (filename == '') {
+      filename = padZero + bookObj.header.bookInfo.num +
       bookObj.header.bookInfo.code + bookObj.header.projectName + '.json';
+    }
     fs.writeFileSync('./' + filename, JSON.stringify(bookObj, null, 2));
     console.info(`Writing out "${filename}"`);
   }

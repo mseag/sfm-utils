@@ -74,3 +74,30 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
   const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
   fs.writeFileSync('./' + padZero + bookNum + bookCode + projectName + '.SFM', SFMtext);
 }
+
+/**
+ * Parse a JSON file and converts it to TSV
+ * @param {Books.objType} bookObj - a book type of JSON object
+ * @param {string} filepath - the original filename
+ */
+export function convertToTSV(bookObj: books.objType,  filepath: string) {
+  const CRLF = "\n";
+
+  const chapters = bookObj.content;
+
+  let CSVtext = "";
+
+  chapters.forEach(function(chapter) {
+    if(chapter.number != 0) {
+      if(chapter.content){
+        chapter.content.forEach(v => {
+          CSVtext += v.number + '\t' + v.text + CRLF;
+        });
+      }
+    }
+  });
+
+  const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
+
+  fs.writeFileSync('./' + padZero + filepath + '.TSV', CSVtext);
+}
