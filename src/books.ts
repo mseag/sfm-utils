@@ -719,9 +719,9 @@ export const bookInfo: bookType[] = [
     code: "XXE",
     name: "Extra Book E",
     num: 98,
-    chapters: 999,
-    versesInChapter: [0, 999],
-    verses: 999
+    chapters: 1,
+    versesInChapter: [0, 462],
+    verses: 462
   },
   {
     code: "XXF",

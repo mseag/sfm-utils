@@ -85,19 +85,18 @@ export function convertToTSV(bookObj: books.objType,  filepath: string) {
 
   const chapters = bookObj.content;
 
-  let CSVtext = "";
+  let TSVtext = "";
 
   chapters.forEach(function(chapter) {
     if(chapter.number != 0) {
       if(chapter.content){
         chapter.content.forEach(v => {
-          CSVtext += v.number + '\t' + v.text + CRLF;
+          TSVtext += v.number + '\t' + v.text + CRLF;
         });
       }
     }
   });
 
   const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
-
-  fs.writeFileSync('./' + padZero + filepath + '.TSV', CSVtext);
+  fs.writeFileSync('./' + padZero + filepath + '.TSV', TSVtext);
 }

@@ -115,7 +115,7 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 // Validate one of the optional parameters is given
 if (!options.back && !options.sfm && !options.text && !options.backDirectory && !options.directory &&
     !options.json && !options.backSuperDirectory && !options.superDirectory) {
-  console.error("Need to pass another optional parameter [-b -t -bd -d -j -bs or -s]");
+  console.error("Need to pass another optional parameter [-b -f -t -bd -d -j -bs or -s]");
   process.exit(1);
 }
 
@@ -283,25 +283,6 @@ async function processBackText(filepath: string, bookObj: books.objType): Promis
   return bookObj;
 }
 
-function processSFMText(filepath: string, bookObj: books.objType): books.objType {
-  const bookInfo = toolbox.getBookAndChapter(filepath);
-
-  if (bookObj.content.length == 0) {
-    bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
-  }
-  const currentChapter = 0; // TODO fix
-  if (!bookObj.content[currentChapter]) {
-    console.error(`${bookInfo.bookName} has insufficent chapters allocated to handle ${currentChapter}. Exiting`);
-    process.exit(1);
-  }
-  if (bookObj.content[currentChapter].type != "chapter") {
-    // Initialize current chapter
-    bookObj.content[currentChapter].type = "chapter";
-    bookObj.content[currentChapter].content = [];
-  }
-
-  return bookObj;
-}
 /**
  * Take a text file and make a JSON book type object
  * @param {string} filepath - file path of a single text file
@@ -351,8 +332,6 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
 
     // For testing, write out book JSON Object
     writeJSON(bookObj, basename + '.json');
-
-    // Move JSON name
 
     // Write JSON Object to TSV file
     sfm.convertToTSV(bookObj, basename);

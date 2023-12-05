@@ -208,6 +208,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
   const modePatternV = /\\v\s+\d+.*/;
   toolboxData.every(line => {
     if (line.match(modePatternVS)) {
+      // Change mode and break out
       mode = 'VS_AS_VERSE';
       return false;
     } else if (line.match(modePatternV)) {
