@@ -12,7 +12,7 @@ import * as sfmConsole from './sfmConsole.js';
  * VS_AS_VERSE - `\vs` marks verse numbers along with section headers.
  *               Uses the state machine (actions)
  */
-type modeType =
+export type modeType =
   "TX_AS_VERSE" |
   "VS_AS_VERSE" |
   "V_AS_VERSE";
@@ -34,14 +34,21 @@ type actionType =
  */
 export type markerType =
   // These are processed
-  "\\tx" |
-  "\\vs" |
-  "\\v"  |
+  "\\tx"   |
+  "\\vs"   |
+  "\\v"    |
+  "\\s"    |
+  "\\p"    |
+  "\\h"    |
+  "\\toc3" |
+  "\\toc1" |
+  "\\toc2" |
+  "\\mt"   |
+  "\\cl"   |
 
   // These are ignored
   "\\_sh" |
   "\\c" |
-  "\\cl" |
   "\\ft" |
   "\\gl" |
   "\\ref" |
@@ -163,7 +170,8 @@ export function initializeBookObj(bookName: string, projectName: string) : books
   const bookObj : books.objType = {
     "header": {
       "projectName" : projectName,
-      "bookInfo" : bookType
+      "bookInfo" : bookType,
+      "markers": [],
     },
     "content": []
   };

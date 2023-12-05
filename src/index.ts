@@ -132,7 +132,7 @@ if (options.json) {
   processBackText(options.back, bookObj);
 } else if (options.sfm) {
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
-  processText(options.sfm, bookObj);
+  processSFMText(options.sfm, bookObj);
 } else if (options.text) {
   // Parse a txt file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
@@ -340,6 +340,64 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
   return bookObj;
 }
 
+/**
+ * Take an SFM file and make a JSON book type object
+ * @param {string} filepath - file path of a single text file
+ * @param {books.bookType} bookObj - the book object to modify
+ * @returns {books.bookType} bookObj - modified book object
+ */
+function processSFMText(filepath: string, bookObj: books.objType): books.objType {
+  const bookInfo = toolbox.getBookAndChapter(filepath);
+  const currentChapter = bookInfo.chapterNumber;
+  const bookType = books.getBookByName(bookInfo.bookName);
+  if (bookInfo.bookName === "Placeholder") {
+    // Skip invalid book name
+    console.warn('Skipping invalid book name');
+    return bookObj;
+  } else if (currentChapter > bookType.chapters) {
+    // Skip invalid chapter number
+    console.warn('Skipping invalid chapter number ' + currentChapter + ' when ' +
+      bookObj.header.bookInfo.name + ' only has ' + bookType.chapters + ' chapters.');
+    return bookObj;
+  }
+
+  if (bookObj.content.length == 0) {
+    bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
+  }
+
+  if (!bookObj.content[currentChapter]) {
+    console.error(`${bookInfo.bookName} has insufficient chapters allocated to handle ${currentChapter}. Exiting`);
+    process.exit(1);
+  }
+  // Initialize all chapters for book
+  for (let ch:number=1; ch<= bookObj.content.length-1; ch++) {
+    if (bookObj.content[ch].type != "chapter") {
+      // Initialize current chapter
+      bookObj.content[ch].type = "chapter";
+      bookObj.content[ch].content = [];
+    }
+  }
+  sfm.updateObj(bookObj, filepath, s, debugMode);
+
+  // For single file parameter, write valid output
+  if (options.text && bookObj.header.bookInfo.code !== "000") {
+    // For testing, write out book JSON Object
+    writeJSON(bookObj);
+
+    //valid JSON Object to SFM
+    sfm.convertToSFM(bookObj, s);
+  } else if (options.sfm && bookObj.header.bookInfo.code !== "000") {
+    const basename = path.parse(path.basename(filepath)).name;
+
+    // For testing, write out book JSON Object
+    writeJSON(bookObj, basename + '.json');
+
+    //valid JSON Object to SFM
+    sfm.convertToSFM(bookObj, s);
+  }
+
+  return bookObj;
+}
 
 /**
  * Take a JSON file and make an SFM file

@@ -743,13 +743,24 @@ export const bookInfo: bookType[] = [
 //#endregion
 
 /**
- * Description of the unit within a chapter.
+ * Description of the unit within a chapter or header.
  */
 export type unitSubtype =
-  "padding" |
-  "chapter" |
-  "verse" |
-  "section";
+  "padding"       |
+
+  // Units in headers
+  "header"        |
+  "toc1"          |
+  "toc2"          |
+  "toc3"          |
+  "main_title"   |
+  "chapter_label" |
+
+  // Units in chapters
+  "chapter"       |
+  "verse"         |
+  "section"       |
+  "paragraph";
 
 export interface unitType {
   type: unitSubtype,
@@ -762,7 +773,8 @@ export interface unitType {
 export interface objType {
   header: {
     projectName: string,
-    bookInfo:  bookType
+    bookInfo:  bookType,
+    markers: unitType[]
   },
   content: unitType[]
 }
@@ -771,7 +783,8 @@ export const PLACEHOLDER_BOOK: bookType = bookInfo[0];
 export const PLACEHOLDER_BOOK_OBJ: objType = {
   "header": {
     "projectName" : "",
-    "bookInfo" : PLACEHOLDER_BOOK
+    "bookInfo" : PLACEHOLDER_BOOK,
+    "markers": []
   },
   "content": []
 }
