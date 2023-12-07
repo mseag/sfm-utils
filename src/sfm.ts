@@ -1,9 +1,15 @@
 // Copyright 2022 SIL International
-// Utilities for converting a JSON file to USFM
+// Utilities for converting from USFM to JSON, and JSON to USFM or TSV
 import * as books from './books.js';
 import * as toolbox from './toolbox.js';
 import * as sfmConsole from './sfmConsole.js';
 import * as fs from 'fs';
+
+/**
+ * Regex to parse \v verse marker
+ */
+export const V_PATTERN = /\\v\s+(\d+)\s+(.+)/;
+
 
 /**
  * Parse an SFM text file and modify the corresponding
@@ -21,7 +27,6 @@ export function updateObj(bookObj: books.objType, file: string,
   let sfmFile = fs.readFileSync(file, 'utf-8');
   sfmFile = sfmFile.replace(/(\r?\n){2,}/g, '\r\n');
   const sfmData = sfmFile.split(/\r?\n/);
-  const SECTION_TITLE = 'title.';
   let section_title_written = false;
   if (sfmData[sfmData.length - 1] == '') {
     // If last line empty, remove it
@@ -110,7 +115,7 @@ export function updateObj(bookObj: books.objType, file: string,
           bookObj.content[currentChapter].content.push(unit);
           break;
         case '\\v' : {
-          const vPatternMatch = line.trim().match(toolbox.V_PATTERN);
+          const vPatternMatch = line.trim().match(V_PATTERN);
           if (vPatternMatch) {
             verseNum = parseInt(vPatternMatch[1]);
 
@@ -160,7 +165,7 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
 
   let SFMtext = "";
 
-  // These were the initial header
+  // These were the initial headers written
   /*
   SFMtext += ID_MARKER + bookObj.header.bookInfo.code + ' ' +  bookObj.header.projectName + CRLF;
   SFMtext += USFM_MARKER + '3.0' + CRLF;
@@ -246,7 +251,7 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
 }
 
 /**
- * Parse a JSON file and converts it to TSV
+ * Parse a JSON file and converts it to TSV. Only writing verses out
  * @param {Books.objType} bookObj - a book type of JSON object
  * @param {string} filepath - the original filename
  */
@@ -261,7 +266,9 @@ export function convertToTSV(bookObj: books.objType,  filepath: string) {
     if(chapter.number != 0) {
       if(chapter.content){
         chapter.content.forEach(v => {
-          TSVtext += v.number + '\t' + v.text + CRLF;
+          if (v.type == "verse") {
+            TSVtext += v.number + '\t' + v.text + CRLF;
+          }
         });
       }
     }

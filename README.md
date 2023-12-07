@@ -1,7 +1,7 @@
 
 # sfm-utils
-Utilities to parse text files (e.g. from Toolbox) and migrate SFM markers into a format suitable for Paratext.
-Each book input is written to individual .sfm files.
+Utilities to parse book translations in SFM text files (.txt, .rtf, .sfm) into JSON objects, and then write out the books into SFM suitable for Paratext or .tsv.
+When directories are processed, each book input is written to individual .sfm files.
 
 Assumptions:
 * Each text file is for a single chapter of a book
@@ -13,7 +13,7 @@ Note for developers: Replace `sfm-utils.exe` references with `node dist/index.js
 
 Command-line
 ```bash
-Usage: sfm-utils.exe -p p_arg [-t t_arg | -d d_arg | -j j_arg | -s s_arg]
+Usage: sfm-utils.exe -p p_arg [-f f_arg | -t t_arg | -d d_arg | -j j_arg | -s s_arg]
 ```
 
 Parameters
@@ -21,7 +21,8 @@ Parameters
     Required
     -p [Paratext project name (can be 3-character abbreviation)]
 
-    Optional - one of:
+    Optional for processing txt or sfm files - one of:
+    -f [A single SFM file (can be an entire book)]
     -t [A single Toolbox text file (one chapter of a book)]
     -d [Directory of Toolbox text files for a single book (one chapter per file)]
     -j [JSON file representing a single book - used for testing conversion to SFM]
@@ -34,11 +35,6 @@ Parameters
 ```
 
 ### Help
-Obtaining the sfm-utils version:
-```bash
-sfm-utils.exe --version
-```
-
 For additional help:
 ```bash
 sfm-utils.exe -h
@@ -49,7 +45,7 @@ sfm-utils.exe -h
 
 ## Developer Setup
 These utilities require Git, Node.js, and TypeScript (installed locally).
-Back translations in .rtf text files will also need UnRTF installed for converting the Rich Text format.
+Back translations in .rtf text files will also need UnRTF installed for converting the Rich Text format (only works on Linux).
 
 ### Install Git
 Download and install Git

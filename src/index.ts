@@ -327,14 +327,6 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
 
     //valid JSON Object to SFM
     sfm.convertToSFM(bookObj, s);
-  } else if (options.sfm && bookObj.header.bookInfo.code !== "000") {
-    const basename = path.parse(path.basename(filepath)).name;
-
-    // For testing, write out book JSON Object
-    writeJSON(bookObj, basename + '.json');
-
-    // Write JSON Object to TSV file
-    sfm.convertToTSV(bookObj, basename);
   }
 
   return bookObj;
@@ -392,8 +384,13 @@ function processSFMText(filepath: string, bookObj: books.objType): books.objType
     // For testing, write out book JSON Object
     writeJSON(bookObj, basename + '.json');
 
-    //valid JSON Object to SFM
-    sfm.convertToSFM(bookObj, s);
+    if (bookObj.header.bookInfo.code == 'XXE') {
+      // Special SFM file written to TSV
+      sfm.convertToTSV(bookObj, basename);
+    } else {
+      //valid JSON Object to SFM
+      sfm.convertToSFM(bookObj, s);
+    }
   }
 
   return bookObj;

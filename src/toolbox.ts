@@ -14,8 +14,7 @@ import * as sfmConsole from './sfmConsole.js';
  */
 export type modeType =
   "TX_AS_VERSE" |
-  "VS_AS_VERSE" |
-  "V_AS_VERSE";
+  "VS_AS_VERSE";
 
 /**
  * States for VS_AS_VERSE processing mode
@@ -71,8 +70,6 @@ export interface bridgeType {
  * \vs 13-14 (b)
  */
 export const VS_PATTERN = /\\vs\s+\*?(\d+|\(?section title\)?|\(?section heading\)?|\(\d+-\d+\)|\[\d+-\d+\]|\d+-\d+)\s?\(?([a-z])?\)?\??.*/;
-
-export const V_PATTERN = /\\v\s+(\d+)\s+(.+)/;
 
 /**
  * Regex to parse all the variations of verse bridges to extract verse ranges
@@ -146,9 +143,8 @@ export function getBookAndChapter(file: string) : fileInfoType {
     const bookName = books.getBookByCode(bookCode).name;
     if (bookName !== "Placeholder") {
       obj.bookName = bookName;
-      // obj.chapterNumber TODO
+      obj.chapterNumber = 1; // Special dataset to put everything into chapter 1
     }
-    obj.chapterNumber = 1; // Special dataset to put everything into chapter 1
   } else {
     console.warn('Unable to determine info from: ' + filename);
   }
@@ -213,15 +209,10 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
   // Determine the mode of how to process the file
   let mode: modeType = 'TX_AS_VERSE';
   const modePatternVS = /\\vs\s+\d+/;
-  const modePatternV = /\\v\s+\d+.*/;
   toolboxData.every(line => {
     if (line.match(modePatternVS)) {
       // Change mode and break out
       mode = 'VS_AS_VERSE';
-      return false;
-    } else if (line.match(modePatternV)) {
-      // Change mode and break out
-      mode = 'V_AS_VERSE';
       return false;
     }
     // Continue the every() loop
@@ -230,7 +221,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
   // Split each line on marker and content
   const markerPattern = /(\\_?[A-Za-z]+)\s?(.*)/;
-  let verseNum = 2; // Keep track of the current verse to write
+  let verseNum = 2; // Keep track of the current verse to write. This may need to revert to 1
   let action : actionType = 'START';
   let section_title_written = false;
   toolboxData.forEach(line => {
@@ -422,26 +413,6 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
               (section_title_written) ? 2 : 1;
             section_title_written = true;
             break;
-        }
-      } else if (mode == 'V_AS_VERSE') {
-        if (marker != "\\tx" && marker != "\\v") {
-          // Skip all other markers for now
-          return;
-        }
-        if (marker == '\\v') {
-          const vsPatternMatch = line.trim().match(V_PATTERN);
-          if(vsPatternMatch){
-            verseNum = parseInt(vsPatternMatch[1]);
-
-            unit.type = "verse";
-            unit.number = verseNum;
-            unit.text = vsPatternMatch[2];
-            bookObj.content[currentChapter].content.push(unit);
-          } else {
-            // Skip unrecognized \vs line
-            s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter}: Skipping unrecognized line "${line}".`);
-            return;
-          }
         }
       }
     } else {
