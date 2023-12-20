@@ -12,7 +12,7 @@ import * as sfmConsole from './sfmConsole.js';
  * VS_AS_VERSE - `\vs` marks verse numbers along with section headers.
  *               Uses the state machine (actions)
  */
-type modeType =
+export type modeType =
   "TX_AS_VERSE" |
   "VS_AS_VERSE";
 
@@ -33,13 +33,21 @@ type actionType =
  */
 export type markerType =
   // These are processed
-  "\\tx" |
-  "\\vs" |
+  "\\tx"   |
+  "\\vs"   |
+  "\\v"    |
+  "\\s"    |
+  "\\p"    |
+  "\\h"    |
+  "\\toc3" |
+  "\\toc1" |
+  "\\toc2" |
+  "\\mt"   |
+  "\\cl"   |
 
   // These are ignored
   "\\_sh" |
   "\\c" |
-  "\\cl" |
   "\\ft" |
   "\\gl" |
   "\\ref" |
@@ -111,8 +119,13 @@ export function getVerseBridge(line: string, verseNum: number) : bridgeType {
  */
 export function getBookAndChapter(file: string) : fileInfoType {
   const filename = path.parse(file).base;
+
   const pattern = /([0-9A-Za-z]+)_(Ch|ch)?(\d+)[_\s]?.*\.txt/;
   const match = filename.match(pattern);
+
+  const patternSFM = /([0-9]{2})([0-9A-Za-z]{3}).+\.(SFM|sfm)/;
+  const matchSFM = filename.match(patternSFM);
+
   const obj: fileInfoType = {
     bookName: "Placeholder",
     chapterNumber: 0
@@ -123,6 +136,14 @@ export function getBookAndChapter(file: string) : fileInfoType {
     if (bookName !== "Placeholder") {
       obj.bookName = bookName;
       obj.chapterNumber = parseInt(match[3]);
+    }
+   // Attempt to parse SFM file name
+  } else if (matchSFM) {
+    const bookCode = matchSFM[2] as books.CodeType;
+    const bookName = books.getBookByCode(bookCode).name;
+    if (bookName !== "Placeholder") {
+      obj.bookName = bookName;
+      obj.chapterNumber = 1; // Special dataset to put everything into chapter 1
     }
   } else {
     console.warn('Unable to determine info from: ' + filename);
@@ -145,7 +166,8 @@ export function initializeBookObj(bookName: string, projectName: string) : books
   const bookObj : books.objType = {
     "header": {
       "projectName" : projectName,
-      "bookInfo" : bookType
+      "bookInfo" : bookType,
+      "markers": [],
     },
     "content": []
   };
@@ -186,9 +208,9 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
   // Determine the mode of how to process the file
   let mode: modeType = 'TX_AS_VERSE';
-  const modePattern = /\\vs\s+\d+/;
+  const modePatternVS = /\\vs\s+\d+/;
   toolboxData.every(line => {
-    if (line.match(modePattern)) {
+    if (line.match(modePatternVS)) {
       // Change mode and break out
       mode = 'VS_AS_VERSE';
       return false;
@@ -199,7 +221,7 @@ export function updateObj(bookObj: books.objType, file: string, currentChapter: 
 
   // Split each line on marker and content
   const markerPattern = /(\\_?[A-Za-z]+)\s?(.*)/;
-  let verseNum = 1; // Keep track of the current verse to write
+  let verseNum = 2; // Keep track of the current verse to write. This may need to revert to 1
   let action : actionType = 'START';
   let section_title_written = false;
   toolboxData.forEach(line => {

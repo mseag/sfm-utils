@@ -4,6 +4,7 @@ import { CommanderError, program } from 'commander';
 import * as fs from 'fs';
 import * as backTranslation from './backTranslation.js';
 import * as books from './books.js';
+import * as path from 'path';
 import * as toolbox from './toolbox.js';
 import require from './cjs-require.js';
 import * as sfm from './sfm.js';
@@ -19,6 +20,7 @@ program
   .description("Utilities to 1) parse Toolbox text files into JSON Objects. " +
     "2) take a JSON file and write out an .SFM file for Paratext.")
     .option("-b, --back <path to single text file>", "path to back translation rtf text file")
+    .option("-f, --sfm <path to single SFM file>", "path to SFM file")
     .option("-t, --text <path to single text file>", "path to a Toolbox text file")
     .option("-bd, --backDirectory <path to directory containing rtf text files>", "path to directory containing multiple RTF text files")
     .option("-d, --directory <path to directory containing text files>", "path to directory containing multiple Toolbox text files")
@@ -43,6 +45,9 @@ if (debugMode) {
   console.log('Parameters:');
   if (options.back) {
     console.log(`Back Translation text file path: "${options.back}"`);
+  }
+  if (options.sfm) {
+    console.log(`SFM file path: "${options.sfm}"`);
   }
   if (options.text) {
     console.log(`Toolbox text file path: "${options.text}"`);
@@ -86,6 +91,10 @@ if (options.back && !fs.existsSync(options.back)) {
   console.error("Can't open back translation text file " + options.back);
   process.exit(1);
 }
+if (options.sfm && !fs.existsSync(options.sfm)) {
+  console.error("Can't open SFM file " + options.sfm);
+  process.exit(1);
+}
 if (options.backDirectory && !fs.existsSync(options.backDirectory)) {
   console.error("Can't open back translation directory " + options.backDirectory);
   process.exit(1);
@@ -104,9 +113,9 @@ if (options.superDirectory && !fs.existsSync(options.superDirectory)) {
 }
 
 // Validate one of the optional parameters is given
-if (!options.back && !options.text && !options.backDirectory && !options.directory &&
+if (!options.back && !options.sfm && !options.text && !options.backDirectory && !options.directory &&
     !options.json && !options.backSuperDirectory && !options.superDirectory) {
-  console.error("Need to pass another optional parameter [-b -t -bd -d -j -bs or -s]");
+  console.error("Need to pass another optional parameter [-b -f -t -bd -d -j -bs or -s]");
   process.exit(1);
 }
 
@@ -121,6 +130,9 @@ if (options.json) {
   // Parse an rtf text file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
   processBackText(options.back, bookObj);
+} else if (options.sfm) {
+  const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
+  processSFMText(options.sfm, bookObj);
 } else if (options.text) {
   // Parse a txt file into a JSON object
   const bookObj: books.objType = books.PLACEHOLDER_BOOK_OBJ;
@@ -320,6 +332,69 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
   return bookObj;
 }
 
+/**
+ * Take an SFM file and make a JSON book type object
+ * @param {string} filepath - file path of a single text file
+ * @param {books.bookType} bookObj - the book object to modify
+ * @returns {books.bookType} bookObj - modified book object
+ */
+function processSFMText(filepath: string, bookObj: books.objType): books.objType {
+  const bookInfo = toolbox.getBookAndChapter(filepath);
+  const currentChapter = bookInfo.chapterNumber;
+  const bookType = books.getBookByName(bookInfo.bookName);
+  if (bookInfo.bookName === "Placeholder") {
+    // Skip invalid book name
+    console.warn('Skipping invalid book name');
+    return bookObj;
+  } else if (currentChapter > bookType.chapters) {
+    // Skip invalid chapter number
+    console.warn('Skipping invalid chapter number ' + currentChapter + ' when ' +
+      bookObj.header.bookInfo.name + ' only has ' + bookType.chapters + ' chapters.');
+    return bookObj;
+  }
+
+  if (bookObj.content.length == 0) {
+    bookObj = toolbox.initializeBookObj(bookInfo.bookName, options.projectName);
+  }
+
+  if (!bookObj.content[currentChapter]) {
+    console.error(`${bookInfo.bookName} has insufficient chapters allocated to handle ${currentChapter}. Exiting`);
+    process.exit(1);
+  }
+  // Initialize all chapters for book
+  for (let ch:number=1; ch<= bookObj.content.length-1; ch++) {
+    if (bookObj.content[ch].type != "chapter") {
+      // Initialize current chapter
+      bookObj.content[ch].type = "chapter";
+      bookObj.content[ch].content = [];
+    }
+  }
+  sfm.updateObj(bookObj, filepath, s, debugMode);
+
+  // For single file parameter, write valid output
+  if (options.text && bookObj.header.bookInfo.code !== "000") {
+    // For testing, write out book JSON Object
+    writeJSON(bookObj);
+
+    //valid JSON Object to SFM
+    sfm.convertToSFM(bookObj, s);
+  } else if (options.sfm && bookObj.header.bookInfo.code !== "000") {
+    const basename = path.parse(path.basename(filepath)).name;
+
+    // For testing, write out book JSON Object
+    writeJSON(bookObj, basename + '.json');
+
+    if (bookObj.header.bookInfo.code == 'XXE') {
+      // Special SFM file written to TSV
+      sfm.convertToTSV(bookObj, basename);
+    } else {
+      //valid JSON Object to SFM
+      sfm.convertToSFM(bookObj, s);
+    }
+  }
+
+  return bookObj;
+}
 
 /**
  * Take a JSON file and make an SFM file
@@ -350,18 +425,21 @@ async function processJSON(filepath: string){
 
 /**
  * Write JSON file (for testing purposes).
- * Filename will be [##][XYZ][Project name].json
+ * If filename not provided, it will be [##][XYZ][Project name].json
  * ## - 2-digit book number
  * XYZ - 3 character book code
  * Project name - Paratext project name
  * @param {books.bookType} bookObj - the book object to write to file
+ * @param {filename} string - filename to write.
  */
-function writeJSON(bookObj: books.objType) {
+function writeJSON(bookObj: books.objType, filename : string = '') {
   if (debugMode) {
     // Add leading 0 if book number < 10
     const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
-    const filename = padZero + bookObj.header.bookInfo.num +
+    if (filename == '') {
+      filename = padZero + bookObj.header.bookInfo.num +
       bookObj.header.bookInfo.code + bookObj.header.projectName + '.json';
+    }
     fs.writeFileSync('./' + filename, JSON.stringify(bookObj, null, 2));
     console.info(`Writing out "${filename}"`);
   }

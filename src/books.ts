@@ -719,9 +719,9 @@ export const bookInfo: bookType[] = [
     code: "XXE",
     name: "Extra Book E",
     num: 98,
-    chapters: 999,
-    versesInChapter: [0],
-    verses: 0
+    chapters: 1,
+    versesInChapter: [0, 462],
+    verses: 462
   },
   {
     code: "XXF",
@@ -743,13 +743,24 @@ export const bookInfo: bookType[] = [
 //#endregion
 
 /**
- * Description of the unit within a chapter.
+ * Description of the unit within a chapter or header.
  */
 export type unitSubtype =
-  "padding" |
-  "chapter" |
-  "verse" |
-  "section";
+  "padding"       |
+
+  // Units in headers
+  "header"        |
+  "toc1"          |
+  "toc2"          |
+  "toc3"          |
+  "main_title"   |
+  "chapter_label" |
+
+  // Units in chapters
+  "chapter"       |
+  "verse"         |
+  "section"       |
+  "paragraph";
 
 export interface unitType {
   type: unitSubtype,
@@ -762,7 +773,8 @@ export interface unitType {
 export interface objType {
   header: {
     projectName: string,
-    bookInfo:  bookType
+    bookInfo:  bookType,
+    markers: unitType[]
   },
   content: unitType[]
 }
@@ -771,7 +783,8 @@ export const PLACEHOLDER_BOOK: bookType = bookInfo[0];
 export const PLACEHOLDER_BOOK_OBJ: objType = {
   "header": {
     "projectName" : "",
-    "bookInfo" : PLACEHOLDER_BOOK
+    "bookInfo" : PLACEHOLDER_BOOK,
+    "markers": []
   },
   "content": []
 }
@@ -862,7 +875,7 @@ export function getBookByName(name: string): bookType {
     case 'I Corinthians':
     case '1Corinthians':
     case 'x1Corinthians':
-    case '1 Cor':  
+    case '1 Cor':
       bookName = "1 Corinthians";
       break;
     case '2Corinthians':
@@ -880,9 +893,9 @@ export function getBookByName(name: string): bookType {
       break;
     case 'Phil':
       bookName = 'Philippians';
-      break;  
+      break;
     case '1Thessalonians':
-    case '1 Thess':       
+    case '1 Thess':
       bookName = '1 Thessalonians';
       break;
     case '2Thessalonians':
@@ -890,7 +903,7 @@ export function getBookByName(name: string): bookType {
       bookName = '2 Thessalonians';
       break;
     case '1Timothy':
-    case '1 Tim':  
+    case '1 Tim':
       bookName = '1 Timothy';
       break;
     case '2Timothy':
@@ -898,7 +911,7 @@ export function getBookByName(name: string): bookType {
       bookName = '2 Timothy';
       break;
     case '1Peter':
-    case '1 Pet':  
+    case '1 Pet':
       bookName = '1 Peter';
       break;
     case '2Peter':
