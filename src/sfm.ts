@@ -146,7 +146,7 @@ export function updateObj(bookObj: books.objType, file: string,
  * Parse a JSON file and converts it to USFM
  * @param {Books.objType} bookObj - a book type of JSON object
  */
-export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) {
+export async function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) {
 
   const ID_MARKER = "\\id ";
   const USFM_MARKER = "\\usfm ";
@@ -216,16 +216,25 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
       }
       if(chapter.content){
         const sectionsAndVerses = chapter.content;
+        let expectedVerse = 1;
         sectionsAndVerses.forEach(function(unit) {
           switch(unit.type) {
             case "section":
               SFMtext += SECTION_MARKER + unit.number + ' ' + unit.text + PARAGRAPH_MARKER + CRLF;
               break;
             case "verse":
+              // Sanity check verse
+              if (unit.number != expectedVerse) {
+                s.log('warn', `Missing verse? ${bookObj.header.bookInfo.name} ch ${chapter.number} expected ${expectedVerse}, now ${unit.number}`)
+                let x=2;
+              }
+              expectedVerse = unit.number + 1;
+
               if (!unit.bridgeEnd) {
                 SFMtext += VERSE_MARKER + unit.number + ' ' + unit.text + CRLF;
               } else {
                 SFMtext += VERSE_MARKER + unit.number + '-' + unit.bridgeEnd + ' ' + unit.text + CRLF;
+                expectedVerse = unit.bridgeEnd + 1;
               }
               break;
             case "paragraph": {
@@ -237,8 +246,13 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
               throw 'Invalid type on ' + JSON.stringify(unit) + '. \nLooking for "section" or "verse".';
           }
         });
+
+        // Sanity check number of expected verses in the chapter
+        if (bookObj.header.bookInfo.versesInChapter[chapter.number] != expectedVerse-1) {
+          s.log('warn', `${bookObj.header.bookInfo.name} ch ${chapter.number} expected ${bookObj.header.bookInfo.versesInChapter[chapter.number]} verses but has ${expectedVerse-1}`);
+        }
       } else {
-        s.log('info', `${bookObj.header.bookInfo.name} ch ${chapter.number} is empty`)
+        s.log('warn', `${bookObj.header.bookInfo.name} ch ${chapter.number} is empty`)
       }
     }
   });
@@ -247,7 +261,7 @@ export function convertToSFM(bookObj: books.objType,  s: sfmConsole.SFMConsole) 
   const bookCode = bookObj.header.bookInfo.code;
   const projectName = bookObj.header.projectName;
   const padZero = bookObj.header.bookInfo.num < 10 ? '0': '';
-  fs.writeFileSync('./' + padZero + bookNum + bookCode + projectName + '.SFM', SFMtext);
+  await fs.writeFileSync('./' + padZero + bookNum + bookCode + projectName + '.SFM', SFMtext);
 }
 
 /**

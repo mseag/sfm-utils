@@ -84,6 +84,7 @@ const s = new sfmConsole.SFMConsole(options.projectName, 'XXA');
 
 // Check if txt/JSON file or directory exists
 if (options.text && !fs.existsSync(options.text)) {
+  console.info(`cwd: ${process.cwd()}`);
   console.error("Can't open Toolbox text file " + options.text);
   process.exit(1);
 }
@@ -221,17 +222,20 @@ function processDirectory(directory: string){
   const filesToParse: string[] = [];
   fileAssistant.getTextFilesInside(directory, filesToParse);
   filesToParse.forEach(file => {
+    bookObj = books.PLACEHOLDER_BOOK_OBJ;
     bookObj = processText(file, bookObj);
+
+    // write valid output
+    if (bookObj.header.bookInfo.code !== "000") {
+      // For testing, write out book JSON Object
+      //writeJSON(bookObj);
+
+      // valid JSON Object to SFM
+      sfm.convertToSFM(bookObj, s);
+    }
+
   });
 
-  // Directory processed, so write valid output
-  if (bookObj.header.bookInfo.code !== "000") {
-    // For testing, write out book JSON Object
-    writeJSON(bookObj);
-
-    // valid JSON Object to SFM
-    sfm.convertToSFM(bookObj, s);
-  }
 }
 
 /**
@@ -318,7 +322,7 @@ function processText(filepath: string, bookObj: books.objType): books.objType {
     bookObj.content[currentChapter].content = [];
   }
 
-  toolbox.updateObj(bookObj, filepath, currentChapter, s, debugMode);
+  toolbox.updateBookObj(bookObj, filepath, s, debugMode);
 
   // For single file parameter, write valid output
   if (options.text && bookObj.header.bookInfo.code !== "000") {
@@ -432,7 +436,7 @@ async function processJSON(filepath: string){
  * @param {books.bookType} bookObj - the book object to write to file
  * @param {filename} string - filename to write.
  */
-function writeJSON(bookObj: books.objType, filename : string = '') {
+async function writeJSON(bookObj: books.objType, filename : string = '') {
   if (debugMode) {
     // Add leading 0 if book number < 10
     const padZero = bookObj.header.bookInfo.num < 10 ? '0' : '';
@@ -440,7 +444,7 @@ function writeJSON(bookObj: books.objType, filename : string = '') {
       filename = padZero + bookObj.header.bookInfo.num +
       bookObj.header.bookInfo.code + bookObj.header.projectName + '.json';
     }
-    fs.writeFileSync('./' + filename, JSON.stringify(bookObj, null, 2));
-    console.info(`Writing out "${filename}"`);
+    await fs.writeFileSync('./' + filename, JSON.stringify(bookObj, null, 2));
+    //console.info(`Writing out "${filename}"`);
   }
 }
