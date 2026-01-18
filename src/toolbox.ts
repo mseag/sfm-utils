@@ -63,7 +63,7 @@ export interface bridgeType {
 
   /**
  * Regex to parse all the variations of \vs marker (along with all the optional punctuation marks)
- * \vs (section title)
+ * (section title)
  * \vs (section heading)
  * \vs (13-14) b
  * \vs [13-14] b
@@ -120,7 +120,7 @@ export function getVerseBridge(line: string, verseNum: number) : bridgeType {
 export function getBookAndChapter(file: string) : fileInfoType {
   const filename = path.parse(file).base;
 
-  const pattern = /([0-9A-Za-z]+)_(Ch|ch)?(\d+)[_\s]?.*\.txt/;
+  const pattern = /([0-9]+) (.*)\.txt/;
   const match = filename.match(pattern);
 
   const patternSFM = /([0-9]{2})([0-9A-Za-z]{3}).+\.(SFM|sfm)/;
@@ -132,10 +132,10 @@ export function getBookAndChapter(file: string) : fileInfoType {
   };
   if (match) {
     // Fix any typo in book name
-    const bookName = books.getBookByName(match[1]).name;
+    const bookName = books.getBookByName(match[2]).name;
     if (bookName !== "Placeholder") {
       obj.bookName = bookName;
-      obj.chapterNumber = parseInt(match[3]);
+      obj.chapterNumber = 1; // assume starting Ch 1 parseInt(match[3]);
     }
    // Attempt to parse SFM file name
   } else if (matchSFM) {
@@ -183,6 +183,128 @@ export function initializeBookObj(bookName: string, projectName: string) : books
   }
 
   return bookObj;
+}
+
+/**
+ * Parse a Toolbox text file and modify the corresponding
+ * book Object
+ * @param {book.objType} bookObj - Book object to modify
+ * @param {string} file - Path to the Toolbox text file
+ * @param {sfmConsole.SFMConsole} - Object that maintains logging
+ * @param {boolean} debugMode - Whether to print additional logging
+ */
+export function updateBookObj(bookObj: books.objType, file: string,
+    s: sfmConsole.SFMConsole, debugMode = false) {
+  let currentChapter: number = 1;
+  // Read in Toolbox file and strip out empty lines
+  let toolboxFile = fs.readFileSync(file, 'utf-8');
+  toolboxFile = toolboxFile.replace(/(\r?\n){2,}/g, '\r\n');
+  const toolboxData = toolboxFile.split(/\r?\n/);
+  if (toolboxData[toolboxData.length - 1] == '') {
+    // If last line empty, remove it
+    toolboxData.pop();
+  }
+
+  // Split each line on marker and content
+  const markerPattern = /\s*(\d+)?(-\d+)?\.?\s*(.*)/;
+  let lastVerseNum = 0, verseNum = 1; // Keep track of the current verse to write. This may need to revert to 1
+  let section_title_written = false;
+  toolboxData.forEach((line: string, index: number) => {
+    if (line.trim() === '') {
+      // Skip
+      return;
+    }
+    if (index == 0) {
+      bookObj.header.bookInfo.name = line;
+      return;
+    }
+    const lineMatch = line.match(markerPattern);
+    // Skip markers lacking content
+    if (lineMatch && lineMatch[3] != '') {
+      const content: string = lineMatch[3];
+      verseNum = lineMatch[1] ? parseInt(lineMatch[1]) : verseNum;
+      if (content.toLowerCase() == "(padding)") {
+        // modify lastVerseNum to force new chapter
+        lastVerseNum = verseNum + 1;
+        return;
+      }
+      const unit: books.unitType = {
+        type: "padding",
+        number: verseNum,
+        text: content
+      };
+      const newChapter: books.unitType = {
+        type: "chapter",
+        number: lastVerseNum,
+        content: []
+      };
+
+      if (!lineMatch[1]) {
+        // Create verse and convert to section header
+        unit.type = "verse";
+        unit.number = verseNum;
+        unit.text = content;
+        bookObj.content[currentChapter].content.push(unit);
+
+       let contentLength = bookObj.content[currentChapter].content.length;
+       bookObj.content[currentChapter].content[contentLength - 1].type = "section";
+        bookObj.content[currentChapter].content[contentLength - 1].number =
+          (section_title_written) ? 2 : 1;
+        section_title_written = true;
+      } else if (lineMatch[1] && lineMatch[2]) {
+        // Verse bridge
+        unit.type = "verse";
+        unit.number = parseInt(lineMatch[1]);
+        unit.text = content;
+        unit.bridgeEnd = parseInt(lineMatch[2].substring(1));
+        bookObj.content[currentChapter].content.push(unit);
+        lastVerseNum = unit.bridgeEnd;
+      } else {
+         if (lastVerseNum >= verseNum || verseNum > lastVerseNum+2) {
+          // A gap > 2 can mean new chapter
+          // Create new Chapter, content = v1
+          if (lastVerseNum == verseNum) {
+            // Possibly continue previous verse?
+            s.log('info', `${bookObj.header.bookInfo.name} ch ${currentChapter}: possible verse span v ${verseNum}`);
+          }
+          currentChapter = verseNum;
+          newChapter.number = currentChapter;
+          newChapter.content = [];
+          bookObj.content[currentChapter] = newChapter;
+          section_title_written = false;
+          lastVerseNum = 0;
+          verseNum = 1;
+         }
+
+         // Create new verse
+        unit.type = "verse";
+        unit.number = verseNum;
+        unit.text = content;
+        bookObj.content[currentChapter].content.push(unit);
+        lastVerseNum = verseNum;
+      }
+
+      // Skip unrecognized \vs line
+      // s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter}: Skipping unrecognized line "${line}".`);
+      // return;
+
+
+      // For debugging state machine
+      if (debugMode) {
+        //console.info(`ch:${currentChapter}, v:${verseNum}, ${content}`);
+      }
+
+    } else {
+      s.log('warn', `Unable to parse line: "${line}" from "${file}" - skipping...`);
+    }
+
+  });
+  // Sanity check on verse numbers for the current chapter
+  if (bookObj.header.bookInfo.versesInChapter &&
+      verseNum-1 > bookObj.header.bookInfo.versesInChapter[currentChapter]) {
+    s.log('warn', `${bookObj.header.bookInfo.name} ch ${currentChapter} has ` +
+      `${verseNum-1} verses, should be ${bookObj.header.bookInfo.versesInChapter[currentChapter]}.`);
+  }
 }
 
 /**
